@@ -58,6 +58,11 @@ export async function settingsRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(400).send({ error: 'Couleur invalide (ex. #0891B2)' });
     }
 
+    const LOCALES = new Set(['en', 'ja', 'es', 'de', 'fr']);
+    if (body.locale != null && body.locale !== '' && !LOCALES.has(String(body.locale))) {
+      return reply.status(400).send({ error: 'Langue invalide' });
+    }
+
     getDb().exec('BEGIN');
     try {
       for (const [key, value] of Object.entries(body)) {

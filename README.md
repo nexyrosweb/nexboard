@@ -13,9 +13,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/nexyrosweb/nexboard"><img src="https://img.shields.io/github/stars/nexyrosweb/nexboard?style=social" alt="GitHub stars"></a>
+  <a href="https://github.com/nexyrosweb/nexboard/releases"><img src="https://img.shields.io/github/v/release/nexyrosweb/nexboard?label=release" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/nexboard"><img src="https://img.shields.io/npm/v/nexboard.svg" alt="npm version"></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/changelog-Keep%20a%20Changelog-blue.svg" alt="Changelog"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+  <a href="https://github.com/nexyrosweb/nexboard"><img src="https://img.shields.io/github/stars/nexyrosweb/nexboard?style=social" alt="GitHub stars"></a>
 </p>
 
 <p align="center">
@@ -95,6 +97,13 @@ The project uses a client-server architecture and is designed to remain lightwei
 </p>
 
 > Screenshots: `Dashboard.png`, `Clients.png`, `Project.png`, `Devis.png`, `Factures.png`.
+
+### Versioning
+
+NexBoard follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
+
+- Changelog: [`CHANGELOG.md`](CHANGELOG.md)
+- GitHub Releases: https://github.com/nexyrosweb/nexboard/releases
 
 ### Tech Stack
 
@@ -358,6 +367,13 @@ Le projet utilise une architecture client-serveur et est pensé pour rester lég
 </p>
 
 > Captures : `Dashboard.png`, `Clients.png`, `Project.png`, `Devis.png`, `Factures.png`.
+
+### Versioning
+
+NexBoard suit le [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
+
+- Journal des versions : [`CHANGELOG.md`](CHANGELOG.md)
+- Releases GitHub : https://github.com/nexyrosweb/nexboard/releases
 
 ### Technologies
 

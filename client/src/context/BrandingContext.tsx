@@ -4,19 +4,21 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 import { api } from '../api/client';
 import { useI18n } from './I18nContext';
-import { isLocale } from '../i18n/translations';
+import { isLocale, type Locale } from '../i18n/translations';
 import type { AppSettings } from '../types';
 
 interface BrandingContextValue {
   settings: AppSettings;
   loading: boolean;
-  refresh: () => Promise<void>;
+  refresh: (opts?: { syncLocale?: boolean }) => Promise<void>;
   applyBrandColor: (color: string) => void;
+  acknowledgeLocale: () => void;
 }
 
 const BrandingContext = createContext<BrandingContextValue | null>(null);
@@ -50,16 +52,26 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>({});
   const [loading, setLoading] = useState(true);
   const { setLocale } = useI18n();
+  const hydratedLocale = useRef(false);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (opts?: { syncLocale?: boolean }) => {
     setLoading(true);
     try {
       const data = await api.get<AppSettings>('/api/settings');
       setSettings(data);
       applyBrandColor(data.brand_color ? String(data.brand_color) : '#0891B2');
       if (data.company_name) document.title = String(data.company_name);
-      if (typeof data.locale === 'string' && isLocale(data.locale)) {
-        setLocale(data.locale);
+
+      const canApplyLocale =
+        typeof data.locale === 'string' &&
+        isLocale(data.locale) &&
+        (opts?.syncLocale === true || !hydratedLocale.current);
+
+      if (canApplyLocale) {
+        setLocale(data.locale as Locale);
+        hydratedLocale.current = true;
+      } else if (!hydratedLocale.current) {
+        hydratedLocale.current = true;
       }
     } catch {
       applyBrandColor('#0891B2');
@@ -68,13 +80,17 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     }
   }, [setLocale]);
 
+  const acknowledgeLocale = useCallback(() => {
+    hydratedLocale.current = true;
+  }, []);
+
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
   const value = useMemo(
-    () => ({ settings, loading, refresh, applyBrandColor }),
-    [settings, loading, refresh],
+    () => ({ settings, loading, refresh, applyBrandColor, acknowledgeLocale }),
+    [settings, loading, refresh, acknowledgeLocale],
   );
 
   return <BrandingContext.Provider value={value}>{children}</BrandingContext.Provider>;

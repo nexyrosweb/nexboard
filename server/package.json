@@ -1,6 +1,6 @@
 {
   "name": "nexboard",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Dashboard moderne de gestion d'entreprise — clients, projets, devis, factures",
   "type": "module",
   "bin": {

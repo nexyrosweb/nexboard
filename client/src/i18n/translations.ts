@@ -259,6 +259,8 @@ const en = {
   'settings.theme': 'Theme',
   'settings.language': 'Interface language',
   'settings.languageHint': 'Choose the language used across NexBoard.',
+  'settings.languageAutoSave': 'Language is saved automatically when you change it.',
+  'settings.languageSaved': 'Language updated',
   'settings.smtpHint':
     'Configure an SMTP server to send quotes and invoices by email (Gmail, OVH, SendGrid, Mailgun…).',
   'settings.smtpHost': 'SMTP host',
@@ -291,7 +293,7 @@ const en = {
 } as const;
 
 const fr: Record<TranslationKey, string> = {
-  'nav.dashboard': 'Dashboard',
+  'nav.dashboard': 'Tableau de bord',
   'nav.clients': 'Clients',
   'nav.projects': 'Projets',
   'nav.quotes': 'Devis',
@@ -527,7 +529,9 @@ const fr: Record<TranslationKey, string> = {
   'settings.brandColor': 'Couleur du dashboard',
   'settings.theme': 'Thème',
   'settings.language': 'Langue de l’interface',
-  'settings.languageHint': 'Choisissez la langue utilisée dans tout NexBoard.',
+  'settings.languageHint': 'Choisissez la langue utilisée dans NexBoard.',
+  'settings.languageAutoSave': 'La langue est enregistrée automatiquement dès le changement.',
+  'settings.languageSaved': 'Langue mise à jour',
   'settings.smtpHint':
     'Configurez un serveur SMTP pour envoyer devis et factures par e-mail (Gmail, OVH, SendGrid, Mailgun…).',
   'settings.smtpHost': 'Hôte SMTP',
@@ -796,6 +800,8 @@ const es: Record<TranslationKey, string> = {
   'settings.theme': 'Tema',
   'settings.language': 'Idioma de la interfaz',
   'settings.languageHint': 'Elige el idioma usado en todo NexBoard.',
+  'settings.languageAutoSave': 'El idioma se guarda automáticamente al cambiarlo.',
+  'settings.languageSaved': 'Idioma actualizado',
   'settings.smtpHint':
     'Configura un servidor SMTP para enviar presupuestos y facturas (Gmail, OVH, SendGrid, Mailgun…).',
   'settings.smtpHost': 'Host SMTP',
@@ -1064,6 +1070,8 @@ const de: Record<TranslationKey, string> = {
   'settings.theme': 'Design',
   'settings.language': 'Oberflächensprache',
   'settings.languageHint': 'Wählen Sie die Sprache für ganz NexBoard.',
+  'settings.languageAutoSave': 'Die Sprache wird beim Wechsel automatisch gespeichert.',
+  'settings.languageSaved': 'Sprache aktualisiert',
   'settings.smtpHint':
     'Konfigurieren Sie einen SMTP-Server zum Versand von Angeboten und Rechnungen (Gmail, OVH, SendGrid, Mailgun…).',
   'settings.smtpHost': 'SMTP-Host',
@@ -1332,6 +1340,8 @@ const ja: Record<TranslationKey, string> = {
   'settings.theme': 'テーマ',
   'settings.language': 'インターフェース言語',
   'settings.languageHint': 'NexBoard全体で使う言語を選択します。',
+  'settings.languageAutoSave': '言語は変更すると自動的に保存されます。',
+  'settings.languageSaved': '言語を更新しました',
   'settings.smtpHint':
     '見積・請求書をメール送信するためのSMTPサーバーを設定します（Gmail、OVH、SendGrid、Mailgunなど）。',
   'settings.smtpHost': 'SMTPホスト',

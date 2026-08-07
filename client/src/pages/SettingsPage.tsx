@@ -15,7 +15,7 @@ import { useI18n } from '../context/I18nContext';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useAsyncData } from '../hooks/useAsyncData';
-import { isLocale, type Locale, type TranslationKey } from '../i18n/translations';
+import { isLocale, translate, type Locale, type TranslationKey } from '../i18n/translations';
 import type { AppSettings } from '../types';
 import { parseApiError } from '../utils/hooks';
 
@@ -41,7 +41,7 @@ function str(value: string | boolean | undefined, fallback = ''): string {
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const { refresh, applyBrandColor } = useBranding();
+  const { refresh, applyBrandColor, acknowledgeLocale } = useBranding();
   const { locale, setLocale, t, options: localeOptions } = useI18n();
   const { push } = useToast();
   const loader = useCallback(() => fetchSettings(), []);
@@ -51,23 +51,47 @@ export function SettingsPage() {
   const [form, setForm] = useState<AppSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [savingLocale, setSavingLocale] = useState(false);
 
   const current = form ?? data;
 
   const patch = (partial: AppSettings) => {
-    if (!current) return;
-    setForm({ ...current, ...partial });
+    setForm((prev) => {
+      const base = prev ?? data;
+      if (!base) return prev;
+      return { ...base, ...partial };
+    });
   };
 
-  const onLanguageChange = (next: Locale) => {
+  const onLanguageChange = async (next: Locale) => {
+    if (next === locale && str(current?.locale) === next) return;
+
+    acknowledgeLocale();
     setLocale(next);
     patch({ locale: next });
+    setSavingLocale(true);
+    try {
+      const saved = await saveSettings({ locale: next });
+      setForm((prev) => ({ ...(prev ?? data ?? {}), ...saved }));
+      setLocale(next);
+      push(translate(next, 'settings.languageSaved'), 'success');
+      reload();
+    } catch (err) {
+      push(parseApiError(err), 'danger');
+    } finally {
+      setSavingLocale(false);
+    }
   };
 
   const onSave = async () => {
     if (!current) return;
     setSaving(true);
     try {
+      const localeToSave =
+        (typeof current.locale === 'string' && isLocale(current.locale)
+          ? current.locale
+          : null) ?? locale;
+
       const saved = await saveSettings({
         company_name: str(current.company_name),
         company_email: str(current.company_email),
@@ -77,7 +101,7 @@ export function SettingsPage() {
         currency: str(current.currency, 'EUR'),
         theme,
         brand_color: str(current.brand_color, '#0891B2'),
-        locale: str(current.locale, locale),
+        locale: localeToSave,
         smtp_host: str(current.smtp_host),
         smtp_port: str(current.smtp_port, '587'),
         smtp_secure: str(current.smtp_secure, 'false'),
@@ -91,7 +115,7 @@ export function SettingsPage() {
       if (typeof saved.locale === 'string' && isLocale(saved.locale)) {
         setLocale(saved.locale);
       }
-      await refresh();
+      await refresh({ syncLocale: true });
       push(t('settings.saved'), 'success');
       reload();
     } catch (err) {
@@ -141,9 +165,7 @@ export function SettingsPage() {
   if (error && !current) return <ErrorState message={error} onRetry={reload} />;
   if (!current) return null;
 
-  const selectedLocale =
-    (typeof current.locale === 'string' && isLocale(current.locale) ? current.locale : null) ??
-    locale;
+  const selectedLocale = locale;
 
   return (
     <div>
@@ -181,7 +203,8 @@ export function SettingsPage() {
                 <select
                   className="select"
                   value={selectedLocale}
-                  onChange={(e) => onLanguageChange(e.target.value as Locale)}
+                  disabled={savingLocale}
+                  onChange={(e) => void onLanguageChange(e.target.value as Locale)}
                 >
                   {localeOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -190,6 +213,7 @@ export function SettingsPage() {
                   ))}
                 </select>
               </label>
+              <p className="settings-hint">{t('settings.languageAutoSave')}</p>
             </>
           ) : null}
 
