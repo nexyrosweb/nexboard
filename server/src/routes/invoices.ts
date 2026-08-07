@@ -1,0 +1,189 @@
+import type { FastifyInstance } from 'fastify';
+import { getDb } from '../db/index.js';
+import { createNotification, getSetting } from '../services/app.js';
+import { sendMail } from '../services/mail.js';
+
+type InvoiceBody = {
+  client_id?: number;
+  project_id?: number | null;
+  quote_id?: number | null;
+  number?: string;
+  title?: string;
+  amount?: number;
+  status?: string;
+  issue_date?: string;
+  due_date?: string | null;
+  paid_at?: string | null;
+};
+
+const STATUSES = new Set(['brouillon', 'envoyee', 'payee', 'en_retard', 'annulee']);
+
+function nextNumber(): string {
+  const year = new Date().getFullYear();
+  const row = getDb()
+    .prepare(`SELECT COUNT(*) AS c FROM invoices WHERE number LIKE ?`)
+    .get(`FAC-${year}-%`) as { c: number };
+  return `FAC-${year}-${String(row.c + 1).padStart(3, '0')}`;
+}
+
+function validate(body: InvoiceBody) {
+  if (!body.client_id) return 'Le client est obligatoire';
+  if (!body.title?.trim()) return 'Le titre est obligatoire';
+  if (body.status && !STATUSES.has(body.status)) return 'Statut invalide';
+  if (!body.issue_date) return 'La date d’émission est obligatoire';
+  return null;
+}
+
+const SELECT = `
+  SELECT i.*, c.name AS client_name, p.name AS project_name
+  FROM invoices i
+  JOIN clients c ON c.id = i.client_id
+  LEFT JOIN projects p ON p.id = i.project_id
+`;
+
+export async function invoicesRoutes(app: FastifyInstance): Promise<void> {
+  app.get('/api/invoices', async (request) => {
+    const db = getDb();
+    const query = request.query as { q?: string; status?: string };
+    const conditions: string[] = [];
+    const params: string[] = [];
+
+    if (query.q) {
+      conditions.push(`(i.number LIKE ? OR i.title LIKE ? OR c.name LIKE ?)`);
+      const q = `%${query.q}%`;
+      params.push(q, q, q);
+    }
+    if (query.status) {
+      conditions.push(`i.status = ?`);
+      params.push(query.status);
+    }
+
+    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    return db.prepare(`${SELECT} ${where} ORDER BY i.created_at DESC`).all(...params);
+  });
+
+  app.post('/api/invoices', async (request, reply) => {
+    const body = request.body as InvoiceBody;
+    const error = validate(body);
+    if (error) return reply.status(400).send({ error });
+
+    const status = body.status || 'brouillon';
+    const paidAt = status === 'payee' ? body.paid_at || new Date().toISOString().slice(0, 10) : null;
+    const number = body.number?.trim() || nextNumber();
+    const issueDate = body.issue_date as string;
+
+    const result = getDb()
+      .prepare(
+        `INSERT INTO invoices (client_id, project_id, quote_id, number, title, amount, status, issue_date, due_date, paid_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        Number(body.client_id),
+        body.project_id ? Number(body.project_id) : null,
+        body.quote_id ? Number(body.quote_id) : null,
+        number,
+        body.title!.trim(),
+        Number(body.amount) || 0,
+        status,
+        issueDate,
+        body.due_date || null,
+        paidAt,
+      );
+
+    return getDb().prepare(`${SELECT} WHERE i.id = ?`).get(Number(result.lastInsertRowid));
+  });
+
+  app.put<{ Params: { id: string } }>('/api/invoices/:id', async (request, reply) => {
+    const id = Number(request.params.id);
+    const existing = getDb().prepare('SELECT id FROM invoices WHERE id = ?').get(id);
+    if (!existing) return reply.status(404).send({ error: 'Facture introuvable' });
+
+    const body = request.body as InvoiceBody;
+    const error = validate(body);
+    if (error) return reply.status(400).send({ error });
+
+    const status = body.status || 'brouillon';
+    const paidAt =
+      status === 'payee'
+        ? body.paid_at || new Date().toISOString().slice(0, 10)
+        : null;
+    const issueDate = body.issue_date as string;
+
+    getDb()
+      .prepare(
+        `UPDATE invoices
+         SET client_id = ?, project_id = ?, quote_id = ?, number = ?, title = ?, amount = ?,
+             status = ?, issue_date = ?, due_date = ?, paid_at = ?, updated_at = datetime('now')
+         WHERE id = ?`,
+      )
+      .run(
+        Number(body.client_id),
+        body.project_id ? Number(body.project_id) : null,
+        body.quote_id ? Number(body.quote_id) : null,
+        body.number?.trim() || nextNumber(),
+        body.title!.trim(),
+        Number(body.amount) || 0,
+        status,
+        issueDate,
+        body.due_date || null,
+        paidAt,
+        id,
+      );
+
+    return getDb().prepare(`${SELECT} WHERE i.id = ?`).get(id);
+  });
+
+  app.delete<{ Params: { id: string } }>('/api/invoices/:id', async (request, reply) => {
+    const id = Number(request.params.id);
+    const result = getDb().prepare('DELETE FROM invoices WHERE id = ?').run(id);
+    if (result.changes === 0) return reply.status(404).send({ error: 'Facture introuvable' });
+    return { ok: true };
+  });
+
+  app.post<{ Params: { id: string } }>('/api/invoices/:id/send', async (request, reply) => {
+    const invoice = getDb()
+      .prepare(
+        `SELECT i.*, c.name AS client_name, c.email AS client_email
+         FROM invoices i JOIN clients c ON c.id = i.client_id WHERE i.id = ?`,
+      )
+      .get(Number(request.params.id)) as
+      | {
+          id: number;
+          number: string;
+          title: string;
+          amount: number;
+          due_date: string | null;
+          client_name: string;
+          client_email: string;
+        }
+      | undefined;
+
+    if (!invoice) return reply.status(404).send({ error: 'Facture introuvable' });
+
+    const company = getSetting('company_name', 'NexBoard');
+    try {
+      await sendMail({
+        to: invoice.client_email,
+        subject: `[${company}] Facture ${invoice.number} — ${invoice.title}`,
+        text: `Bonjour ${invoice.client_name},\n\nVoici votre facture ${invoice.number} (${invoice.title}) d’un montant de ${invoice.amount} €.${invoice.due_date ? `\nÉchéance : ${invoice.due_date}` : ''}\n\nCordialement,\n${company}`,
+        html: `<p>Bonjour ${invoice.client_name},</p><p>Voici votre facture <strong>${invoice.number}</strong> — ${invoice.title}.</p><p>Montant : <strong>${invoice.amount} €</strong>${invoice.due_date ? `<br/>Échéance : ${invoice.due_date}` : ''}</p><p>Cordialement,<br/>${company}</p>`,
+      });
+      getDb()
+        .prepare(
+          `UPDATE invoices SET status = CASE WHEN status = 'brouillon' THEN 'envoyee' ELSE status END, updated_at = datetime('now') WHERE id = ?`,
+        )
+        .run(invoice.id);
+      createNotification({
+        type: 'success',
+        title: `Facture envoyée · ${invoice.number}`,
+        message: `Envoyée à ${invoice.client_email}`,
+        link: '/invoices',
+      });
+      return getDb().prepare(`${SELECT} WHERE i.id = ?`).get(invoice.id);
+    } catch (err) {
+      return reply
+        .status(400)
+        .send({ error: err instanceof Error ? err.message : 'Envoi impossible' });
+    }
+  });
+}

@@ -1,0 +1,22 @@
+{
+  "name": "nexboard-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NexBoard monorepo (dev)",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c cyan,magenta \"npm run dev -w nexboard\" \"npm run dev -w nexboard-client\"",
+    "build": "npm run build -w nexboard-client && npm run build -w nexboard",
+    "start": "npm run start -w nexboard",
+    "publish:npm": "npm run build && npm publish -w nexboard --access public"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
