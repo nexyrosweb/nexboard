@@ -13,6 +13,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/nexyrosweb/nexboard"><img src="https://img.shields.io/github/stars/nexyrosweb/nexboard?style=social" alt="GitHub stars"></a>
+  <a href="https://www.npmjs.com/package/nexboard"><img src="https://img.shields.io/npm/v/nexboard.svg" alt="npm version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+</p>
+
+<p align="center">
   <a href="#-english">English</a> ·
   <a href="#-français">Français</a>
 </p>
@@ -41,6 +47,9 @@ The project uses a client-server architecture and is designed to remain lightwei
 * 👥 Customer management (CRUD)
 * 📁 Project management (CRUD)
 * 🧾 Quotes and invoices (CRUD + email send)
+* 🖨️ Printable document preview (save as PDF via browser)
+* 🔁 Convert quote → invoice
+* 🗂️ Detail sheets with quick actions
 * 📈 Charts and analytics (Recharts)
 * 🔎 Search and filters
 * 🌙 Light and dark mode
@@ -301,6 +310,9 @@ Le projet utilise une architecture client-serveur et est pensé pour rester lég
 * 👥 Gestion des clients (CRUD)
 * 📁 Gestion des projets (CRUD)
 * 🧾 Devis et factures (CRUD + envoi e-mail)
+* 🖨️ Aperçu document imprimable (PDF via navigateur)
+* 🔁 Conversion devis → facture
+* 🗂️ Fiches détail avec actions rapides
 * 📈 Graphiques et analytics (Recharts)
 * 🔎 Recherche et filtres
 * 🌙 Mode clair et sombre

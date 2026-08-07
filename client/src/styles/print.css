@@ -1,0 +1,265 @@
+/* Document preview (screen) */
+.doc-print-hint {
+  margin: 0 0 0.85rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.document-sheet {
+  --doc-accent: var(--signal);
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+
+.document-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding-bottom: 1.25rem;
+  border-bottom: 3px solid var(--doc-accent);
+  margin-bottom: 1.25rem;
+}
+
+.document-sheet-brand {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.document-sheet-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.document-sheet-mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--doc-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.35rem;
+}
+
+.document-sheet-brand .muted,
+.document-sheet .muted {
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.document-sheet-meta {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.document-sheet-kind {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--doc-accent);
+}
+
+.document-sheet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.document-sheet-grid h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.document-sheet-grid p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.document-sheet-dl {
+  margin: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.document-sheet-dl div {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 0.5rem;
+}
+
+.document-sheet-dl dt {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.document-sheet-dl dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.document-sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.25rem;
+}
+
+.document-sheet-table th,
+.document-sheet-table td {
+  padding: 0.75rem 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.document-sheet-table th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  background: #f8fafc;
+}
+
+.document-sheet-table .num {
+  text-align: right;
+}
+
+.document-sheet-table tfoot td {
+  font-weight: 700;
+  border-bottom: none;
+  padding-top: 1rem;
+  font-size: 1.05rem;
+}
+
+.document-sheet-thanks {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.detail-sheet {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.detail-sheet-row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 30%) 1fr;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.detail-sheet-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-sheet-row dt {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.detail-sheet-row dd {
+  margin: 0;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.empty-state-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  opacity: 0.85;
+  max-width: 28rem;
+}
+
+@media (max-width: 720px) {
+  .document-sheet-header,
+  .document-sheet-grid,
+  .document-sheet-dl div,
+  .detail-sheet-row {
+    grid-template-columns: 1fr;
+  }
+
+  .document-sheet-header {
+    display: grid;
+  }
+
+  .document-sheet-meta {
+    text-align: left;
+    align-items: flex-start;
+  }
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .document-sheet,
+  .document-sheet * {
+    visibility: visible !important;
+  }
+
+  .document-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    background: #fff;
+    color: #000;
+  }
+
+  .no-print,
+  .modal-header,
+  .modal-footer,
+  .sidebar,
+  .topbar,
+  .toast-stack {
+    display: none !important;
+  }
+
+  .modal-backdrop {
+    position: static;
+    background: transparent;
+    inset: auto;
+  }
+
+  .modal {
+    box-shadow: none;
+    border: none;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    background: transparent;
+  }
+
+  .modal-body {
+    padding: 0;
+  }
+}

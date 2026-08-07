@@ -1,8 +1,9 @@
-import { Plus } from 'lucide-react';
+import { ArrowRightLeft, FileText, Mail, Pencil, Plus, Printer } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { fetchClients } from '../api/clients';
 import { fetchProjects } from '../api/projects';
 import {
+  convertQuote,
   createQuote,
   deleteQuote,
   fetchQuotes,
@@ -11,6 +12,11 @@ import {
   type QuoteInput,
 } from '../api/quotes';
 import { downloadExport } from '../api/settings';
+import { DetailSheet } from '../components/DetailSheet';
+import {
+  DocumentPreview,
+  type DocumentPreviewModel,
+} from '../components/DocumentPreview';
 import { ConfirmDialog, FormActions, Modal, handleFormSubmit } from '../components/Modal';
 import { ListToolbar, PageHeader } from '../components/PageChrome';
 import { ErrorState, LoadingState } from '../components/StateViews';
@@ -33,6 +39,10 @@ const emptyForm = (): QuoteInput => ({
   issue_date: todayISO(),
   valid_until: '',
 });
+
+function canConvert(status: Quote['status']) {
+  return status === 'envoye' || status === 'accepte' || status === 'brouillon';
+}
 
 export function QuotesPage() {
   const { t } = useI18n();
@@ -69,10 +79,39 @@ export function QuotesPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<Quote | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [detail, setDetail] = useState<Quote | null>(null);
+  const [preview, setPreview] = useState<DocumentPreviewModel | null>(null);
+  const [converting, setConverting] = useState(false);
 
   const clientProjects = useMemo(
     () => projects.filter((p) => p.client_id === form.client_id),
     [projects, form.client_id],
+  );
+
+  const clientById = useCallback(
+    (id: number) => clients.find((c) => c.id === id),
+    [clients],
+  );
+
+  const toPreview = useCallback(
+    (quote: Quote): DocumentPreviewModel => {
+      const client = clientById(quote.client_id);
+      return {
+        kind: 'quote',
+        number: quote.number,
+        title: quote.title,
+        amount: quote.amount,
+        status: quote.status,
+        issue_date: quote.issue_date,
+        valid_until: quote.valid_until,
+        client_name: quote.client_name,
+        client_email: client?.email,
+        client_company: client?.company,
+        client_phone: client?.phone,
+        project_name: quote.project_name,
+      };
+    },
+    [clientById],
   );
 
   const openCreate = () => {
@@ -128,12 +167,36 @@ export function QuotesPage() {
     try {
       await deleteQuote(toDelete.id);
       setToDelete(null);
+      setDetail(null);
       reload();
     } catch {
       setToDelete(null);
     } finally {
       setDeleting(false);
     }
+  };
+
+  const handleConvert = async (quote: Quote) => {
+    setConverting(true);
+    try {
+      const result = await convertQuote(quote.id);
+      push(t('quotes.converted', { number: result.invoice.number }), 'success');
+      setDetail(null);
+      reload();
+    } catch (err) {
+      push(parseApiError(err), 'danger');
+    } finally {
+      setConverting(false);
+    }
+  };
+
+  const handleSend = (quote: Quote) => {
+    void sendQuote(quote.id)
+      .then(() => {
+        push(t('quotes.sent'), 'success');
+        reload();
+      })
+      .catch((err) => push(parseApiError(err), 'danger'));
   };
 
   const n = data?.length ?? 0;
@@ -175,7 +238,15 @@ export function QuotesPage() {
         <section className="card">
           <div className="card-body" style={{ paddingTop: '0.5rem' }}>
             {!data.length ? (
-              <EmptyTable message={t('quotes.empty')} />
+              <EmptyTable
+                message={t('quotes.empty')}
+                hint={t('quotes.empty.hint')}
+                action={
+                  <button type="button" className="btn btn-primary" onClick={openCreate}>
+                    {t('quotes.new')}
+                  </button>
+                }
+              />
             ) : (
               <div className="table-wrap">
                 <table className="data-table">
@@ -193,7 +264,15 @@ export function QuotesPage() {
                   <tbody>
                     {data.map((quote) => (
                       <tr key={quote.id}>
-                        <td className="mono">{quote.number}</td>
+                        <td className="mono">
+                          <button
+                            type="button"
+                            className="link-btn"
+                            onClick={() => setDetail(quote)}
+                          >
+                            {quote.number}
+                          </button>
+                        </td>
                         <td>
                           <strong>{quote.title}</strong>
                         </td>
@@ -205,16 +284,16 @@ export function QuotesPage() {
                         <td>{formatDate(quote.issue_date)}</td>
                         <td>
                           <RowActions
+                            onView={() => setDetail(quote)}
+                            onPreview={() => setPreview(toPreview(quote))}
+                            onConvert={
+                              canConvert(quote.status)
+                                ? () => void handleConvert(quote)
+                                : undefined
+                            }
                             onEdit={() => openEdit(quote)}
                             onDelete={() => setToDelete(quote)}
-                            onSend={() => {
-                              void sendQuote(quote.id)
-                                .then(() => {
-                                  push(t('quotes.sent'), 'success');
-                                  reload();
-                                })
-                                .catch((err) => push(parseApiError(err), 'danger'));
-                            }}
+                            onSend={() => handleSend(quote)}
                           />
                         </td>
                       </tr>
@@ -344,6 +423,84 @@ export function QuotesPage() {
           </label>
         </form>
       </Modal>
+
+      <DetailSheet
+        open={!!detail}
+        title={t('quotes.detail.title')}
+        onClose={() => setDetail(null)}
+        fields={
+          detail
+            ? [
+                { label: t('quotes.col.number'), value: detail.number },
+                { label: t('quotes.col.title'), value: detail.title },
+                { label: t('quotes.col.client'), value: detail.client_name },
+                {
+                  label: t('quotes.field.project'),
+                  value: detail.project_name || t('common.none'),
+                },
+                { label: t('quotes.col.amount'), value: formatCurrency(detail.amount) },
+                { label: t('quotes.col.status'), value: <StatusBadge status={detail.status} /> },
+                { label: t('quotes.col.issue'), value: formatDate(detail.issue_date) },
+                {
+                  label: t('quotes.field.valid'),
+                  value: detail.valid_until ? formatDate(detail.valid_until) : '—',
+                },
+              ]
+            : []
+        }
+        actions={
+          detail ? (
+            <>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setPreview(toPreview(detail))}
+              >
+                <FileText size={16} />
+                {t('common.preview')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => {
+                  setPreview(toPreview(detail));
+                }}
+              >
+                <Printer size={16} />
+                {t('common.print')}
+              </button>
+              {canConvert(detail.status) ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  disabled={converting}
+                  onClick={() => void handleConvert(detail)}
+                >
+                  <ArrowRightLeft size={16} />
+                  {t('quotes.convert')}
+                </button>
+              ) : null}
+              <button type="button" className="btn btn-ghost" onClick={() => handleSend(detail)}>
+                <Mail size={16} />
+                {t('common.sendEmail')}
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => {
+                  openEdit(detail);
+                  setDetail(null);
+                }}
+              >
+                <Pencil size={16} />
+                {t('common.edit')}
+              </button>
+            </>
+          ) : null
+        }
+      />
+
+      <DocumentPreview open={!!preview} doc={preview} onClose={() => setPreview(null)} />
 
       <ConfirmDialog
         open={!!toDelete}

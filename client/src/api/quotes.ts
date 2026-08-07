@@ -1,5 +1,5 @@
 import { api, toQuery } from './client';
-import type { Quote } from '../types';
+import type { Invoice, Quote } from '../types';
 
 export type QuoteInput = {
   client_id: number;
@@ -30,4 +30,8 @@ export function deleteQuote(id: number) {
 
 export function sendQuote(id: number) {
   return api.post<Quote>(`/api/quotes/${id}/send`, {});
+}
+
+export function convertQuote(id: number) {
+  return api.post<{ invoice: Invoice; quote: Quote }>(`/api/quotes/${id}/convert`, {});
 }

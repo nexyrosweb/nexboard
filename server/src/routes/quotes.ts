@@ -125,6 +125,85 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
     return { ok: true };
   });
 
+  app.post<{ Params: { id: string } }>('/api/quotes/:id/convert', async (request, reply) => {
+    const id = Number(request.params.id);
+    const quote = getDb().prepare(`${SELECT} WHERE q.id = ?`).get(id) as
+      | {
+          id: number;
+          client_id: number;
+          project_id: number | null;
+          number: string;
+          title: string;
+          amount: number;
+          status: string;
+        }
+      | undefined;
+
+    if (!quote) return reply.status(404).send({ error: 'Devis introuvable' });
+
+    const existing = getDb()
+      .prepare('SELECT id, number FROM invoices WHERE quote_id = ?')
+      .get(id) as { id: number; number: string } | undefined;
+    if (existing) {
+      return reply.status(409).send({
+        error: `Déjà converti en facture ${existing.number}`,
+        invoice_id: existing.id,
+      });
+    }
+
+    const year = new Date().getFullYear();
+    const countRow = getDb()
+      .prepare(`SELECT COUNT(*) AS c FROM invoices WHERE number LIKE ?`)
+      .get(`FAC-${year}-%`) as { c: number };
+    const invoiceNumber = `FAC-${year}-${String(countRow.c + 1).padStart(3, '0')}`;
+    const issueDate = new Date().toISOString().slice(0, 10);
+    const due = new Date();
+    due.setDate(due.getDate() + 30);
+    const dueDate = due.toISOString().slice(0, 10);
+
+    const result = getDb()
+      .prepare(
+        `INSERT INTO invoices (client_id, project_id, quote_id, number, title, amount, status, issue_date, due_date)
+         VALUES (?, ?, ?, ?, ?, ?, 'brouillon', ?, ?)`,
+      )
+      .run(
+        quote.client_id,
+        quote.project_id,
+        quote.id,
+        invoiceNumber,
+        quote.title,
+        quote.amount,
+        issueDate,
+        dueDate,
+      );
+
+    if (quote.status !== 'accepte') {
+      getDb()
+        .prepare(`UPDATE quotes SET status = 'accepte', updated_at = datetime('now') WHERE id = ?`)
+        .run(quote.id);
+    }
+
+    createNotification({
+      type: 'success',
+      title: `Devis converti · ${quote.number}`,
+      message: `Facture ${invoiceNumber} créée`,
+      link: '/invoices',
+    });
+
+    const invoiceSelect = `
+      SELECT i.*, c.name AS client_name, p.name AS project_name
+      FROM invoices i
+      JOIN clients c ON c.id = i.client_id
+      LEFT JOIN projects p ON p.id = i.project_id
+      WHERE i.id = ?
+    `;
+
+    return {
+      invoice: getDb().prepare(invoiceSelect).get(Number(result.lastInsertRowid)),
+      quote: getDb().prepare(`${SELECT} WHERE q.id = ?`).get(quote.id),
+    };
+  });
+
   app.post<{ Params: { id: string } }>('/api/quotes/:id/send', async (request, reply) => {
     const quote = getDb()
       .prepare(

@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { Pencil, Plus } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import {
   createClient,
@@ -7,6 +7,7 @@ import {
   updateClient,
   type ClientInput,
 } from '../api/clients';
+import { DetailSheet } from '../components/DetailSheet';
 import { ConfirmDialog, FormActions, Modal, handleFormSubmit } from '../components/Modal';
 import { ListToolbar, PageHeader } from '../components/PageChrome';
 import { ErrorState, LoadingState } from '../components/StateViews';
@@ -48,6 +49,7 @@ export function ClientsPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<Client | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [detail, setDetail] = useState<Client | null>(null);
 
   const openCreate = () => {
     setEditing(null);
@@ -91,6 +93,7 @@ export function ClientsPage() {
     try {
       await deleteClient(toDelete.id);
       setToDelete(null);
+      setDetail(null);
       reload();
     } catch (err) {
       setFormError(parseApiError(err));
@@ -136,6 +139,7 @@ export function ClientsPage() {
             {!data.length ? (
               <EmptyTable
                 message={t('clients.empty')}
+                hint={t('clients.empty.hint')}
                 action={
                   <button type="button" className="btn btn-primary" onClick={openCreate}>
                     {t('clients.add')}
@@ -160,7 +164,13 @@ export function ClientsPage() {
                     {data.map((client) => (
                       <tr key={client.id}>
                         <td>
-                          <strong>{client.name}</strong>
+                          <button
+                            type="button"
+                            className="link-btn"
+                            onClick={() => setDetail(client)}
+                          >
+                            <strong>{client.name}</strong>
+                          </button>
                         </td>
                         <td>{client.company || '—'}</td>
                         <td>{client.email}</td>
@@ -171,6 +181,7 @@ export function ClientsPage() {
                         <td>{formatDate(client.created_at)}</td>
                         <td>
                           <RowActions
+                            onView={() => setDetail(client)}
                             onEdit={() => openEdit(client)}
                             onDelete={() => setToDelete(client)}
                           />
@@ -261,6 +272,40 @@ export function ClientsPage() {
           </label>
         </form>
       </Modal>
+
+      <DetailSheet
+        open={!!detail}
+        title={t('clients.detail.title')}
+        onClose={() => setDetail(null)}
+        fields={
+          detail
+            ? [
+                { label: t('clients.col.name'), value: detail.name },
+                { label: t('clients.col.company'), value: detail.company || '—' },
+                { label: t('clients.col.email'), value: detail.email },
+                { label: t('clients.col.phone'), value: detail.phone || '—' },
+                { label: t('clients.col.status'), value: <StatusBadge status={detail.status} /> },
+                { label: t('clients.field.notes'), value: detail.notes || '—' },
+                { label: t('clients.col.created'), value: formatDate(detail.created_at) },
+              ]
+            : []
+        }
+        actions={
+          detail ? (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => {
+                openEdit(detail);
+                setDetail(null);
+              }}
+            >
+              <Pencil size={16} />
+              {t('common.edit')}
+            </button>
+          ) : null
+        }
+      />
 
       <ConfirmDialog
         open={!!toDelete}

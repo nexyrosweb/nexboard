@@ -1,10 +1,10 @@
 {
   "name": "nexboard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Dashboard moderne de gestion d'entreprise — clients, projets, devis, factures",
   "type": "module",
   "bin": {
-    "nexboard": "./bin/nexboard.mjs"
+    "nexboard": "bin/nexboard.mjs"
   },
   "files": [
     "bin",
@@ -50,7 +50,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nexyrosweb/nexboard.git"
+    "url": "git+https://github.com/nexyrosweb/nexboard.git"
   },
   "bugs": {
     "url": "https://github.com/nexyrosweb/nexboard/issues"
