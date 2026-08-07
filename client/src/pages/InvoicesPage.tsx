@@ -1,4 +1,4 @@
-import { FileText, Mail, Pencil, Plus, Printer } from 'lucide-react';
+import { FileText, Mail, Pencil, Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { fetchClients } from '../api/clients';
 import {
@@ -438,19 +438,11 @@ export function InvoicesPage() {
                 onClick={() => setPreview(toPreview(detail))}
               >
                 <FileText size={16} />
-                {t('common.preview')}
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => setPreview(toPreview(detail))}
-              >
-                <Printer size={16} />
-                {t('common.print')}
+                <span>{t('common.preview')}</span>
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => handleSend(detail)}>
                 <Mail size={16} />
-                {t('common.sendEmail')}
+                <span>{t('common.sendEmail')}</span>
               </button>
               <button
                 type="button"
@@ -461,7 +453,7 @@ export function InvoicesPage() {
                 }}
               >
                 <Pencil size={16} />
-                {t('common.edit')}
+                <span>{t('common.edit')}</span>
               </button>
             </>
           ) : null

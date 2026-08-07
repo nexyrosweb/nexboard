@@ -24,12 +24,12 @@ export function DetailSheet({ open, title, onClose, fields, actions }: DetailShe
       onClose={onClose}
       wide
       footer={
-        <>
+        <div className="detail-actions">
           {actions}
           <button type="button" className="btn btn-ghost" onClick={onClose}>
             {t('common.cancel')}
           </button>
-        </>
+        </div>
       }
     >
       <dl className="detail-sheet">

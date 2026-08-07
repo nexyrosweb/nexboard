@@ -13,6 +13,14 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/nexyrosweb/nexboard/releases"><img src="https://img.shields.io/github/v/release/nexyrosweb/nexboard?label=release" alt="GitHub release"></a>
+  <a href="https://www.npmjs.com/package/nexboard"><img src="https://img.shields.io/npm/v/nexboard.svg" alt="npm version"></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/changelog-Keep%20a%20Changelog-blue.svg" alt="Changelog"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+  <a href="https://github.com/nexyrosweb/nexboard"><img src="https://img.shields.io/github/stars/nexyrosweb/nexboard?style=social" alt="GitHub stars"></a>
+</p>
+
+<p align="center">
   <a href="#-english">English</a> ·
   <a href="#-français">Français</a>
 </p>
@@ -41,6 +49,9 @@ The project uses a client-server architecture and is designed to remain lightwei
 * 👥 Customer management (CRUD)
 * 📁 Project management (CRUD)
 * 🧾 Quotes and invoices (CRUD + email send)
+* 🖨️ Printable document preview (save as PDF via browser)
+* 🔁 Convert quote → invoice
+* 🗂️ Detail sheets with quick actions
 * 📈 Charts and analytics (Recharts)
 * 🔎 Search and filters
 * 🌙 Light and dark mode
@@ -51,7 +62,7 @@ The project uses a client-server architecture and is designed to remain lightwei
 * 📤 CSV export and SQLite backup
 * 📱 Responsive interface
 * 💾 Local SQLite database (auto-created)
-* 🚀 Simple installation (`npm install` + `npm run dev`)
+* 🚀 Simple installation (`npm i nexboard` / `npx nexboard`)
 
 ### Screenshots
 
@@ -86,6 +97,13 @@ The project uses a client-server architecture and is designed to remain lightwei
 </p>
 
 > Screenshots: `Dashboard.png`, `Clients.png`, `Project.png`, `Devis.png`, `Factures.png`.
+
+### Versioning
+
+NexBoard follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
+
+- Changelog: [`CHANGELOG.md`](CHANGELOG.md)
+- GitHub Releases: https://github.com/nexyrosweb/nexboard/releases
 
 ### Tech Stack
 
@@ -154,6 +172,37 @@ nexboard/
 
 * Node.js **22+**
 * npm
+
+#### Quick install (npm)
+
+Install the package:
+
+```bash
+npm i nexboard
+```
+
+Or globally:
+
+```bash
+npm i -g nexboard
+```
+
+Then start NexBoard:
+
+```bash
+npx nexboard
+```
+
+If installed globally:
+
+```bash
+nexboard
+```
+
+Open [http://localhost:3001](http://localhost:3001).
+
+#### Install from source (development)
+
 * Git
 
 Clone the repository:
@@ -216,12 +265,6 @@ Client and server are managed through npm workspaces.
 ```bash
 npm run build
 npm start
-```
-
-Or, once published to npm:
-
-```bash
-npx nexboard
 ```
 
 ### Database
@@ -301,6 +344,9 @@ Le projet utilise une architecture client-serveur et est pensé pour rester lég
 * 👥 Gestion des clients (CRUD)
 * 📁 Gestion des projets (CRUD)
 * 🧾 Devis et factures (CRUD + envoi e-mail)
+* 🖨️ Aperçu document imprimable (PDF via navigateur)
+* 🔁 Conversion devis → facture
+* 🗂️ Fiches détail avec actions rapides
 * 📈 Graphiques et analytics (Recharts)
 * 🔎 Recherche et filtres
 * 🌙 Mode clair et sombre
@@ -311,7 +357,7 @@ Le projet utilise une architecture client-serveur et est pensé pour rester lég
 * 📤 Export CSV et sauvegarde SQLite
 * 📱 Interface responsive
 * 💾 Base de données SQLite locale (création auto)
-* 🚀 Installation simple (`npm install` + `npm run dev`)
+* 🚀 Installation simple (`npm i nexboard` / `npx nexboard`)
 
 ### Captures d’écran
 
@@ -346,6 +392,13 @@ Le projet utilise une architecture client-serveur et est pensé pour rester lég
 </p>
 
 > Captures : `Dashboard.png`, `Clients.png`, `Project.png`, `Devis.png`, `Factures.png`.
+
+### Versioning
+
+NexBoard suit le [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
+
+- Journal des versions : [`CHANGELOG.md`](CHANGELOG.md)
+- Releases GitHub : https://github.com/nexyrosweb/nexboard/releases
 
 ### Technologies
 
@@ -414,6 +467,37 @@ nexboard/
 
 * Node.js **22+**
 * npm
+
+#### Installation rapide (npm)
+
+Installez le package :
+
+```bash
+npm i nexboard
+```
+
+Ou en global :
+
+```bash
+npm i -g nexboard
+```
+
+Puis lancez NexBoard :
+
+```bash
+npx nexboard
+```
+
+Si installé en global :
+
+```bash
+nexboard
+```
+
+Ouvrez [http://localhost:3001](http://localhost:3001).
+
+#### Installation depuis les sources (développement)
+
 * Git
 
 Clonez le dépôt :
@@ -476,12 +560,6 @@ Le client et le serveur sont gérés via les npm workspaces.
 ```bash
 npm run build
 npm start
-```
-
-Ou, une fois publié sur npm :
-
-```bash
-npx nexboard
 ```
 
 ### Base de données

@@ -62,7 +62,7 @@ The project uses a client-server architecture and is designed to remain lightwei
 * 📤 CSV export and SQLite backup
 * 📱 Responsive interface
 * 💾 Local SQLite database (auto-created)
-* 🚀 Simple installation (`npm install` + `npm run dev`)
+* 🚀 Simple installation (`npm i nexboard` / `npx nexboard`)
 
 ### Screenshots
 
@@ -172,6 +172,37 @@ nexboard/
 
 * Node.js **22+**
 * npm
+
+#### Quick install (npm)
+
+Install the package:
+
+```bash
+npm i nexboard
+```
+
+Or globally:
+
+```bash
+npm i -g nexboard
+```
+
+Then start NexBoard:
+
+```bash
+npx nexboard
+```
+
+If installed globally:
+
+```bash
+nexboard
+```
+
+Open [http://localhost:3001](http://localhost:3001).
+
+#### Install from source (development)
+
 * Git
 
 Clone the repository:
@@ -234,12 +265,6 @@ Client and server are managed through npm workspaces.
 ```bash
 npm run build
 npm start
-```
-
-Or, once published to npm:
-
-```bash
-npx nexboard
 ```
 
 ### Database
@@ -332,7 +357,7 @@ Le projet utilise une architecture client-serveur et est pensé pour rester lég
 * 📤 Export CSV et sauvegarde SQLite
 * 📱 Interface responsive
 * 💾 Base de données SQLite locale (création auto)
-* 🚀 Installation simple (`npm install` + `npm run dev`)
+* 🚀 Installation simple (`npm i nexboard` / `npx nexboard`)
 
 ### Captures d’écran
 
@@ -442,6 +467,37 @@ nexboard/
 
 * Node.js **22+**
 * npm
+
+#### Installation rapide (npm)
+
+Installez le package :
+
+```bash
+npm i nexboard
+```
+
+Ou en global :
+
+```bash
+npm i -g nexboard
+```
+
+Puis lancez NexBoard :
+
+```bash
+npx nexboard
+```
+
+Si installé en global :
+
+```bash
+nexboard
+```
+
+Ouvrez [http://localhost:3001](http://localhost:3001).
+
+#### Installation depuis les sources (développement)
+
 * Git
 
 Clonez le dépôt :
@@ -504,12 +560,6 @@ Le client et le serveur sont gérés via les npm workspaces.
 ```bash
 npm run build
 npm start
-```
-
-Ou, une fois publié sur npm :
-
-```bash
-npx nexboard
 ```
 
 ### Base de données

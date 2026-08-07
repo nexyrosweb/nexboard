@@ -428,9 +428,16 @@
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   padding: 0.9rem 1.15rem 1.15rem;
   border-top: 1px solid var(--line);
+}
+
+.modal-footer .btn {
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .modal-text {

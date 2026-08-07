@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Authentication / API protection
 - Multi-user & roles
 
+## [1.1.2] - 2026-08-07
+
+### Fixed
+- Print / PDF no longer produces a blank page (dedicated print root)
+- Detail sheet action buttons no longer wrap awkwardly
+
+### Changed
+- README: quick install via `npm i nexboard` / `npx nexboard`
+- Shorter action labels in document detail sheets
+
 ## [1.1.1] - 2026-08-07
 
 ### Fixed
@@ -47,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI: `npx nexboard` (Node.js ≥ 22)
 - MIT license
 
-[Unreleased]: https://github.com/nexyrosweb/nexboard/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/nexyrosweb/nexboard/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/nexyrosweb/nexboard/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/nexyrosweb/nexboard/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/nexyrosweb/nexboard/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/nexyrosweb/nexboard/releases/tag/v1.0.0

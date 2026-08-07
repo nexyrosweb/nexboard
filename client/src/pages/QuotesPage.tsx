@@ -1,4 +1,4 @@
-import { ArrowRightLeft, FileText, Mail, Pencil, Plus, Printer } from 'lucide-react';
+import { ArrowRightLeft, FileText, Mail, Pencil, Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { fetchClients } from '../api/clients';
 import { fetchProjects } from '../api/projects';
@@ -457,17 +457,7 @@ export function QuotesPage() {
                 onClick={() => setPreview(toPreview(detail))}
               >
                 <FileText size={16} />
-                {t('common.preview')}
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => {
-                  setPreview(toPreview(detail));
-                }}
-              >
-                <Printer size={16} />
-                {t('common.print')}
+                <span>{t('common.preview')}</span>
               </button>
               {canConvert(detail.status) ? (
                 <button
@@ -477,12 +467,12 @@ export function QuotesPage() {
                   onClick={() => void handleConvert(detail)}
                 >
                   <ArrowRightLeft size={16} />
-                  {t('quotes.convert')}
+                  <span>{t('quotes.convert')}</span>
                 </button>
               ) : null}
               <button type="button" className="btn btn-ghost" onClick={() => handleSend(detail)}>
                 <Mail size={16} />
-                {t('common.sendEmail')}
+                <span>{t('common.sendEmail')}</span>
               </button>
               <button
                 type="button"
@@ -493,7 +483,7 @@ export function QuotesPage() {
                 }}
               >
                 <Pencil size={16} />
-                {t('common.edit')}
+                <span>{t('common.edit')}</span>
               </button>
             </>
           ) : null
