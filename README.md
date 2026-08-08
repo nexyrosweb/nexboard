@@ -190,7 +190,9 @@ nexboard/
 │       ├── Clients.png
 │       ├── Project.png
 │       ├── Devis.png
-│       └── Factures.png
+│       ├── Factures.png
+│       ├── Tasks.png
+│       └── Calendar.png
 │
 ├── .env.example
 ├── .gitignore
@@ -522,7 +524,9 @@ nexboard/
 │       ├── Clients.png
 │       ├── Project.png
 │       ├── Devis.png
-│       └── Factures.png
+│       ├── Factures.png
+│       ├── Tasks.png
+│       └── Calendar.png
 │
 ├── .env.example
 ├── .gitignore
