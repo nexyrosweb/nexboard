@@ -12,7 +12,7 @@ import { ConfirmDialog, FormActions, Modal, handleFormSubmit } from '../componen
 import { ListToolbar, PageHeader } from '../components/PageChrome';
 import { ErrorState, LoadingState } from '../components/StateViews';
 import { EmptyTable, RowActions, StatusBadge } from '../components/TableBits';
-import { PROJECT_STATUSES, useStatusOptions } from '../constants/statuses';
+import { useStatusOptions } from '../constants/statuses';
 import { useI18n } from '../context/I18nContext';
 import { useAsyncData } from '../hooks/useAsyncData';
 import type { TranslationKey } from '../i18n/translations';
@@ -246,7 +246,7 @@ export function ProjectsPage() {
                 setForm({ ...form, status: e.target.value as Project['status'] })
               }
             >
-              {PROJECT_STATUSES.map((value) => (
+              {statusOptions.projectValues.map((value) => (
                 <option key={value} value={value}>
                   {t(`status.${value}` as TranslationKey)}
                 </option>

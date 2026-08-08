@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { getDb } from '../db/index.js';
+import { isValidStatus } from '../services/statuses.js';
 
 type ProjectBody = {
   client_id?: number;
@@ -11,12 +12,10 @@ type ProjectBody = {
   end_date?: string | null;
 };
 
-const STATUSES = new Set(['brouillon', 'en_cours', 'termine', 'annule']);
-
 function validate(body: ProjectBody) {
   if (!body.name?.trim()) return 'Le nom est obligatoire';
   if (!body.client_id) return 'Le client est obligatoire';
-  if (body.status && !STATUSES.has(body.status)) return 'Statut invalide';
+  if (body.status && !isValidStatus('projects', body.status)) return 'Statut invalide';
   return null;
 }
 

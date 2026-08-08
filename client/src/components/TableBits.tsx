@@ -1,13 +1,11 @@
 import { ArrowRightLeft, Eye, FileText, Mail, Pencil, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useI18n } from '../context/I18nContext';
-import type { TranslationKey } from '../i18n/translations';
-import { statusBadgeClass, statusLabelKey } from '../utils/format';
+import { statusBadgeClass, useStatusLabel } from '../utils/format';
 
 export function StatusBadge({ status }: { status: string }) {
-  const { t } = useI18n();
-  const key = statusLabelKey(status) as TranslationKey;
-  return <span className={statusBadgeClass(status)}>{t(key)}</span>;
+  const labelOf = useStatusLabel();
+  return <span className={statusBadgeClass(status)}>{labelOf(status)}</span>;
 }
 
 interface RowActionsProps {

@@ -7,12 +7,13 @@ export type QuoteInput = {
   number?: string;
   title: string;
   amount: number;
-  status: Quote['status'];
+  currency?: string;
+  status: string;
   issue_date: string;
   valid_until?: string | null;
 };
 
-export function fetchQuotes(params: { q?: string; status?: string } = {}) {
+export function fetchQuotes(params: { q?: string; status?: string; from?: string; to?: string } = {}) {
   return api.get<Quote[]>(`/api/quotes${toQuery(params)}`);
 }
 

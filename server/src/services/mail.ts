@@ -10,6 +10,12 @@ export interface SmtpConfig {
   from: string;
 }
 
+export interface MailAttachment {
+  filename: string;
+  content: Buffer;
+  contentType?: string;
+}
+
 export function readSmtpConfig(): SmtpConfig {
   return {
     host: getSetting('smtp_host'),
@@ -30,6 +36,7 @@ export async function sendMail(options: {
   subject: string;
   text: string;
   html?: string;
+  attachments?: MailAttachment[];
 }): Promise<void> {
   const cfg = readSmtpConfig();
   if (!isSmtpConfigured(cfg)) {
@@ -49,6 +56,11 @@ export async function sendMail(options: {
     subject: options.subject,
     text: options.text,
     html: options.html,
+    attachments: options.attachments?.map((a) => ({
+      filename: a.filename,
+      content: a.content,
+      contentType: a.contentType ?? 'application/pdf',
+    })),
   });
 }
 

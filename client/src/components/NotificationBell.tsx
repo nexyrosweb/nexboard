@@ -1,19 +1,16 @@
 import { Bell } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api/client';
+import {
+  fetchNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from '../api/notifications';
 import { useI18n } from '../context/I18nContext';
+import type { AppNotification } from '../types';
 import { formatDate } from '../utils/format';
 
-export interface AppNotification {
-  id: number;
-  type: 'info' | 'success' | 'warning' | 'danger';
-  title: string;
-  message: string;
-  link: string | null;
-  read: number;
-  created_at: string;
-}
+export type { AppNotification };
 
 export function NotificationBell() {
   const { t } = useI18n();
@@ -24,9 +21,7 @@ export function NotificationBell() {
 
   const load = useCallback(async () => {
     try {
-      const data = await api.get<{ items: AppNotification[]; unread: number }>(
-        '/api/notifications',
-      );
+      const data = await fetchNotifications(20);
       setItems(data.items);
       setUnread(data.unread);
     } catch {
@@ -49,13 +44,13 @@ export function NotificationBell() {
   }, []);
 
   const markAll = async () => {
-    await api.post('/api/notifications/read-all', {});
+    await markAllNotificationsRead();
     setItems((prev) => prev.map((n) => ({ ...n, read: 1 })));
     setUnread(0);
   };
 
   const markOne = async (id: number) => {
-    await api.post(`/api/notifications/${id}/read`, {});
+    await markNotificationRead(id);
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: 1 } : n)));
     setUnread((n) => Math.max(0, n - 1));
   };
@@ -111,6 +106,11 @@ export function NotificationBell() {
               ))
             )}
           </ul>
+          <div className="notif-panel-foot">
+            <Link to="/notifications" className="notif-see-all" onClick={() => setOpen(false)}>
+              {t('notif.seeAll')}
+            </Link>
+          </div>
         </div>
       ) : null}
     </div>

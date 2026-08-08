@@ -7,6 +7,7 @@ import fastifyStatic from '@fastify/static';
 import { config } from './config.js';
 import { closeDatabase, initDatabase } from './db/index.js';
 import { uploadsDir } from './services/app.js';
+import { runSmartAlerts } from './services/alerts.js';
 import { dashboardRoutes } from './routes/dashboard.js';
 import { clientsRoutes } from './routes/clients.js';
 import { projectsRoutes } from './routes/projects.js';
@@ -15,6 +16,9 @@ import { invoicesRoutes } from './routes/invoices.js';
 import { settingsRoutes } from './routes/settings.js';
 import { notificationsRoutes } from './routes/notifications.js';
 import { toolsRoutes } from './routes/tools.js';
+import { tasksRoutes } from './routes/tasks.js';
+import { calendarRoutes } from './routes/calendar.js';
+import { importRoutes } from './routes/import.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,9 +41,12 @@ export async function buildServer() {
   await app.register(projectsRoutes);
   await app.register(quotesRoutes);
   await app.register(invoicesRoutes);
+  await app.register(tasksRoutes);
+  await app.register(calendarRoutes);
   await app.register(settingsRoutes);
   await app.register(notificationsRoutes);
   await app.register(toolsRoutes);
+  await app.register(importRoutes);
 
   const clientDist = path.resolve(__dirname, '../../client/dist');
   const bundledPublic = path.resolve(__dirname, '../public');
@@ -79,6 +86,17 @@ export async function startServer() {
 
   await app.listen({ port: config.port, host: config.host });
   console.log(`[nexboard] prêt sur http://${config.host}:${config.port}`);
+
+  // Smart alerts + overdue reminders: at startup, then hourly
+  void runSmartAlerts().catch((err) => {
+    console.warn('[nexboard] alertes init:', err);
+  });
+  setInterval(() => {
+    void runSmartAlerts().catch((err) => {
+      console.warn('[nexboard] alertes:', err);
+    });
+  }, 60 * 60 * 1000);
+
   return app;
 }
 

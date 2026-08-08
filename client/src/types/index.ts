@@ -1,12 +1,30 @@
 export interface DashboardStats {
   clientsTotal: number;
   clientsActive: number;
+  clientsNewMonth: number;
   projectsTotal: number;
   projectsActive: number;
   quotesPending: number;
+  quotesTotal: number;
+  quotesAccepted: number;
+  quoteConversionRate: number;
   invoicesOutstanding: number;
   revenuePaid: number;
   revenuePending: number;
+  revenueMonth: number;
+  unpaidAmount: number;
+  unpaidCount: number;
+  tasksToday: number;
+}
+
+export interface DashboardTask {
+  id: number;
+  title: string;
+  priority: string;
+  due_date: string | null;
+  status: string;
+  assignee: string | null;
+  client_name: string | null;
 }
 
 export interface RevenuePoint {
@@ -39,6 +57,7 @@ export interface DashboardData {
   invoicesByStatus: StatusSlice[];
   projectsByStatus: StatusSlice[];
   recentActivity: ActivityItem[];
+  tasksToday: DashboardTask[];
 }
 
 export interface Client {
@@ -76,7 +95,8 @@ export interface Quote {
   number: string;
   title: string;
   amount: number;
-  status: 'brouillon' | 'envoye' | 'accepte' | 'refuse' | 'expire';
+  currency: string;
+  status: string;
   issue_date: string;
   valid_until: string | null;
   created_at: string;
@@ -93,7 +113,8 @@ export interface Invoice {
   number: string;
   title: string;
   amount: number;
-  status: 'brouillon' | 'envoyee' | 'payee' | 'en_retard' | 'annulee';
+  currency: string;
+  status: string;
   issue_date: string;
   due_date: string | null;
   paid_at: string | null;
@@ -101,6 +122,98 @@ export interface Invoice {
   updated_at: string;
 }
 
+export interface Task {
+  id: number;
+  title: string;
+  description: string | null;
+  status: 'todo' | 'in_progress' | 'done' | 'cancelled';
+  priority: 'low' | 'medium' | 'high';
+  due_date: string | null;
+  reminder_at: string | null;
+  assignee: string | null;
+  client_id: number | null;
+  project_id: number | null;
+  client_name: string | null;
+  project_name: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CalendarEvent {
+  id: number;
+  title: string;
+  description: string | null;
+  location: string | null;
+  starts_at: string;
+  ends_at: string | null;
+  all_day: boolean | number;
+  client_id: number | null;
+  project_id: number | null;
+  task_id: number | null;
+  reminder_minutes: number | null;
+  client_name: string | null;
+  project_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CalendarItemType = 'event' | 'invoice' | 'quote' | 'project' | 'task';
+
+export interface CalendarItem {
+  id: string;
+  type: CalendarItemType;
+  title: string;
+  date: string;
+  end_date: string | null;
+  all_day: boolean;
+  meta: string | null;
+  link: string;
+  color: string;
+  editable: boolean;
+  ref_id: number;
+}
+
+export interface AppNotification {
+  id: number;
+  type: 'info' | 'success' | 'warning' | 'danger';
+  title: string;
+  message: string;
+  link: string | null;
+  read: number;
+  source_key?: string | null;
+  created_at: string;
+}
+
 export type AppSettings = Record<string, string | boolean | undefined>;
 
 export type Option = { value: string; label: string };
+
+export interface DashboardLayout {
+  order: string[];
+  hidden: string[];
+}
+
+export type ImportEntity = 'clients' | 'projects';
+
+export interface ImportPreviewRow {
+  index: number;
+  data: Record<string, string>;
+  status: 'ok' | 'duplicate' | 'error';
+  message?: string;
+}
+
+export interface ImportPreviewResponse {
+  entity: string;
+  total: number;
+  ok: number;
+  duplicates: number;
+  errors: number;
+  rows: ImportPreviewRow[];
+}
+
+export interface ImportConfirmResponse {
+  entity: string;
+  imported: number;
+  skipped: number;
+}

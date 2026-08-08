@@ -31,6 +31,10 @@ interface ToolbarProps {
   onStatusChange: (value: string) => void;
   statusOptions: Option[];
   countLabel: string;
+  dateFrom?: string;
+  dateTo?: string;
+  onDateFromChange?: (value: string) => void;
+  onDateToChange?: (value: string) => void;
 }
 
 export function ListToolbar({
@@ -41,8 +45,13 @@ export function ListToolbar({
   onStatusChange,
   statusOptions,
   countLabel,
+  dateFrom,
+  dateTo,
+  onDateFromChange,
+  onDateToChange,
 }: ToolbarProps) {
   const { t } = useI18n();
+  const showDates = Boolean(onDateFromChange && onDateToChange);
   return (
     <div className="list-toolbar">
       <div className="search-box grow">
@@ -55,6 +64,30 @@ export function ListToolbar({
           aria-label={t('common.search')}
         />
       </div>
+      {showDates ? (
+        <>
+          <label className="toolbar-date">
+            <span className="sr-only">{t('common.dateFrom')}</span>
+            <input
+              className="input"
+              type="date"
+              value={dateFrom ?? ''}
+              onChange={(e) => onDateFromChange?.(e.target.value)}
+              aria-label={t('common.dateFrom')}
+            />
+          </label>
+          <label className="toolbar-date">
+            <span className="sr-only">{t('common.dateTo')}</span>
+            <input
+              className="input"
+              type="date"
+              value={dateTo ?? ''}
+              onChange={(e) => onDateToChange?.(e.target.value)}
+              aria-label={t('common.dateTo')}
+            />
+          </label>
+        </>
+      ) : null}
       <select
         className="select"
         value={status}

@@ -20,20 +20,25 @@ import { ConfirmDialog, FormActions, Modal, handleFormSubmit } from '../componen
 import { ListToolbar, PageHeader } from '../components/PageChrome';
 import { ErrorState, LoadingState } from '../components/StateViews';
 import { EmptyTable, RowActions, StatusBadge } from '../components/TableBits';
-import { INVOICE_STATUSES, useStatusOptions } from '../constants/statuses';
+import {
+  useCurrencyOptions,
+  useDefaultCurrency,
+  useStatusOptions,
+} from '../constants/statuses';
 import { useI18n } from '../context/I18nContext';
 import { useToast } from '../context/ToastContext';
 import { useAsyncData } from '../hooks/useAsyncData';
 import type { TranslationKey } from '../i18n/translations';
 import type { Client, Invoice, Project } from '../types';
-import { formatCurrency, formatDate } from '../utils/format';
+import { formatDate, useFormatCurrency } from '../utils/format';
 import { parseApiError, todayISO, useDebouncedValue } from '../utils/hooks';
 
-const emptyForm = (): InvoiceInput => ({
+const emptyForm = (currency: string): InvoiceInput => ({
   client_id: 0,
   project_id: null,
   title: '',
   amount: 0,
+  currency,
   status: 'brouillon',
   issue_date: todayISO(),
   due_date: '',
@@ -42,16 +47,27 @@ const emptyForm = (): InvoiceInput => ({
 export function InvoicesPage() {
   const { t } = useI18n();
   const { push } = useToast();
+  const formatCurrency = useFormatCurrency();
+  const defaultCurrency = useDefaultCurrency();
+  const currencyOptions = useCurrencyOptions();
   const statusOptions = useStatusOptions();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const debouncedSearch = useDebouncedValue(search);
   const [clients, setClients] = useState<Client[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
 
   const loader = useCallback(
-    () => fetchInvoices({ q: debouncedSearch || undefined, status: status || undefined }),
-    [debouncedSearch, status],
+    () =>
+      fetchInvoices({
+        q: debouncedSearch || undefined,
+        status: status || undefined,
+        from: dateFrom || undefined,
+        to: dateTo || undefined,
+      }),
+    [debouncedSearch, status, dateFrom, dateTo],
   );
   const { data, loading, error, reload } = useAsyncData(loader);
 
@@ -69,7 +85,7 @@ export function InvoicesPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Invoice | null>(null);
-  const [form, setForm] = useState<InvoiceInput>(emptyForm());
+  const [form, setForm] = useState<InvoiceInput>(() => emptyForm(defaultCurrency));
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<Invoice | null>(null);
@@ -95,6 +111,7 @@ export function InvoicesPage() {
         number: invoice.number,
         title: invoice.title,
         amount: invoice.amount,
+        currency: invoice.currency,
         status: invoice.status,
         issue_date: invoice.issue_date,
         due_date: invoice.due_date,
@@ -111,7 +128,7 @@ export function InvoicesPage() {
   const openCreate = () => {
     setEditing(null);
     setForm({
-      ...emptyForm(),
+      ...emptyForm(defaultCurrency),
       client_id: clients[0]?.id ?? 0,
     });
     setFormError(null);
@@ -127,6 +144,7 @@ export function InvoicesPage() {
       number: invoice.number,
       title: invoice.title,
       amount: invoice.amount,
+      currency: invoice.currency,
       status: invoice.status,
       issue_date: invoice.issue_date,
       due_date: invoice.due_date ?? '',
@@ -192,7 +210,16 @@ export function InvoicesPage() {
         description={t('invoices.desc')}
         action={
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button type="button" className="btn btn-ghost" onClick={() => downloadExport('invoices')}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() =>
+                downloadExport('invoices', {
+                  from: dateFrom || undefined,
+                  to: dateTo || undefined,
+                })
+              }
+            >
               {t('common.exportCsv')}
             </button>
             <button type="button" className="btn btn-primary" onClick={openCreate}>
@@ -210,6 +237,10 @@ export function InvoicesPage() {
         status={status}
         onStatusChange={setStatus}
         statusOptions={statusOptions.invoices}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateFromChange={setDateFrom}
+        onDateToChange={setDateTo}
         countLabel={countLabel}
       />
 
@@ -259,7 +290,9 @@ export function InvoicesPage() {
                           <strong>{invoice.title}</strong>
                         </td>
                         <td>{invoice.client_name}</td>
-                        <td className="mono">{formatCurrency(invoice.amount)}</td>
+                        <td className="mono">
+                          {formatCurrency(invoice.amount, invoice.currency)}
+                        </td>
                         <td>
                           <StatusBadge status={invoice.status} />
                         </td>
@@ -364,15 +397,27 @@ export function InvoicesPage() {
             />
           </label>
           <label className="field">
+            <span className="field-label">{t('settings.currency')}</span>
+            <select
+              className="select"
+              value={form.currency ?? defaultCurrency}
+              onChange={(e) => setForm({ ...form, currency: e.target.value })}
+            >
+              {currencyOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
             <span className="field-label">{t('invoices.field.status')}</span>
             <select
               className="select"
               value={form.status}
-              onChange={(e) =>
-                setForm({ ...form, status: e.target.value as Invoice['status'] })
-              }
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
             >
-              {INVOICE_STATUSES.map((value) => (
+              {statusOptions.invoiceValues.map((value) => (
                 <option key={value} value={value}>
                   {t(`status.${value}` as TranslationKey)}
                 </option>
@@ -415,7 +460,10 @@ export function InvoicesPage() {
                   label: t('invoices.field.project'),
                   value: detail.project_name || t('common.none'),
                 },
-                { label: t('invoices.col.amount'), value: formatCurrency(detail.amount) },
+                {
+                  label: t('invoices.col.amount'),
+                  value: formatCurrency(detail.amount, detail.currency),
+                },
                 { label: t('invoices.col.status'), value: <StatusBadge status={detail.status} /> },
                 { label: t('invoices.field.issue'), value: formatDate(detail.issue_date) },
                 {

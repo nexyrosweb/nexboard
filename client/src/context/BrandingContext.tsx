@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { api } from '../api/client';
 import { useI18n } from './I18nContext';
+import { useTheme, type ThemeMode } from './ThemeContext';
 import { isLocale, type Locale } from '../i18n/translations';
 import type { AppSettings } from '../types';
 
@@ -22,6 +23,10 @@ interface BrandingContextValue {
 }
 
 const BrandingContext = createContext<BrandingContextValue | null>(null);
+
+function isThemeMode(value: unknown): value is ThemeMode {
+  return value === 'light' || value === 'dark' || value === 'system';
+}
 
 function shade(hex: string, percent: number): string {
   const raw = hex.replace('#', '');
@@ -52,7 +57,9 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>({});
   const [loading, setLoading] = useState(true);
   const { setLocale } = useI18n();
+  const { setTheme } = useTheme();
   const hydratedLocale = useRef(false);
+  const hydratedTheme = useRef(false);
 
   const refresh = useCallback(async (opts?: { syncLocale?: boolean }) => {
     setLoading(true);
@@ -61,6 +68,13 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
       setSettings(data);
       applyBrandColor(data.brand_color ? String(data.brand_color) : '#0891B2');
       if (data.company_name) document.title = String(data.company_name);
+
+      if (isThemeMode(data.theme) && (opts?.syncLocale === true || !hydratedTheme.current)) {
+        setTheme(data.theme);
+        hydratedTheme.current = true;
+      } else if (!hydratedTheme.current) {
+        hydratedTheme.current = true;
+      }
 
       const canApplyLocale =
         typeof data.locale === 'string' &&
@@ -78,7 +92,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [setLocale]);
+  }, [setLocale, setTheme]);
 
   const acknowledgeLocale = useCallback(() => {
     hydratedLocale.current = true;

@@ -45,18 +45,24 @@ The project uses a client-server architecture and is designed to remain lightwei
 
 ### Features
 
-* 📊 Dashboard with key statistics and charts
+* 📊 Customizable dashboard (draggable / hideable widgets)
 * 👥 Customer management (CRUD)
 * 📁 Project management (CRUD)
-* 🧾 Quotes and invoices (CRUD + email send)
+* ✅ Tasks (due date, priority, assignee, reminders, “today” view)
+* 📅 Calendar week/month (invoices, projects, tasks, appointments)
+* 🧾 Quotes and invoices (CRUD + email send with PDF attachments)
 * 🖨️ Printable document preview (save as PDF via browser)
 * 🔁 Convert quote → invoice
 * 🗂️ Detail sheets with quick actions
 * 📈 Charts and analytics (Recharts)
-* 🔎 Search and filters
+* 🔎 Search, filters and date-range export
+* 📥 CSV import (clients/projects) with preview and duplicate detection
+* 💱 Multi-currency support
+* 🏷️ Custom statuses per entity
+* ⏰ Overdue invoice reminders (in-app + optional email)
 * 🌙 Light and dark mode
 * 🎨 Logo, brand color and multi-language UI
-* 🔔 In-app notifications
+* 🔔 Smart notification center
 * ✉️ SMTP configuration and test emails
 * ⚙️ Application settings
 * 📤 CSV export and SQLite backup
@@ -302,6 +308,10 @@ NexBoard is built around a few core principles:
 * [x] Multi-language UI
 * [x] API
 * [x] Dashboard customization
+* [x] Tasks & reminders
+* [x] Calendar view
+* [x] CSV import
+* [x] Smart notification center
 * [ ] Authentication
 * [ ] PDF export
 * [ ] User management
@@ -340,18 +350,24 @@ Le projet utilise une architecture client-serveur et est pensé pour rester lég
 
 ### Fonctionnalités
 
-* 📊 Tableau de bord avec statistiques et graphiques
+* 📊 Tableau de bord personnalisable (widgets déplaçables / masquables)
 * 👥 Gestion des clients (CRUD)
 * 📁 Gestion des projets (CRUD)
-* 🧾 Devis et factures (CRUD + envoi e-mail)
+* ✅ Tâches (échéance, priorité, responsable, rappels, vue « aujourd’hui »)
+* 📅 Calendrier semaine/mois (factures, projets, tâches, rendez-vous)
+* 🧾 Devis et factures (CRUD + envoi e-mail avec PDF joint)
 * 🖨️ Aperçu document imprimable (PDF via navigateur)
 * 🔁 Conversion devis → facture
 * 🗂️ Fiches détail avec actions rapides
 * 📈 Graphiques et analytics (Recharts)
-* 🔎 Recherche et filtres
+* 🔎 Recherche, filtres et export par plage de dates
+* 📥 Import CSV (clients/projets) avec aperçu et détection des doublons
+* 💱 Support multi-devises
+* 🏷️ Statuts personnalisables par entité
+* ⏰ Relances de factures en retard (in-app + e-mail optionnel)
 * 🌙 Mode clair et sombre
 * 🎨 Logo, couleur de marque et interface multilingue
-* 🔔 Notifications in-app
+* 🔔 Centre de notifications intelligent
 * ✉️ Configuration SMTP et e-mails de test
 * ⚙️ Paramètres de l’application
 * 📤 Export CSV et sauvegarde SQLite
@@ -597,6 +613,10 @@ NexBoard repose sur plusieurs principes :
 * [x] Interface multilingue
 * [x] API
 * [x] Personnalisation du dashboard
+* [x] Tâches et rappels
+* [x] Vue calendrier
+* [x] Import CSV
+* [x] Centre de notifications intelligent
 * [ ] Authentification
 * [ ] Export PDF
 * [ ] Gestion des utilisateurs

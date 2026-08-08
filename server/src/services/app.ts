@@ -14,6 +14,7 @@ export interface Notification {
   title: string;
   message: string;
   link: string | null;
+  source_key: string | null;
   read: number;
   created_at: string;
 }
@@ -44,20 +45,65 @@ export function createNotification(input: {
   title: string;
   message: string;
   link?: string | null;
+  source_key?: string | null;
 }): Notification {
   const result = getDb()
     .prepare(
-      `INSERT INTO notifications (type, title, message, link)
-       VALUES (?, ?, ?, ?)`,
+      `INSERT INTO notifications (type, title, message, link, source_key)
+       VALUES (?, ?, ?, ?, ?)`,
     )
-    .run(input.type ?? 'info', input.title, input.message, input.link ?? null);
+    .run(
+      input.type ?? 'info',
+      input.title,
+      input.message,
+      input.link ?? null,
+      input.source_key ?? null,
+    );
 
   return getDb()
     .prepare('SELECT * FROM notifications WHERE id = ?')
     .get(Number(result.lastInsertRowid)) as unknown as Notification;
 }
 
-export function listNotifications(limit = 30): Notification[] {
+/** Create once per source_key; if already unread, skip; if read, refresh to unread. */
+export function ensureNotification(input: {
+  type?: NotificationType;
+  title: string;
+  message: string;
+  link?: string | null;
+  source_key: string;
+}): Notification | null {
+  const db = getDb();
+  const existing = db
+    .prepare(`SELECT * FROM notifications WHERE source_key = ?`)
+    .get(input.source_key) as Notification | undefined;
+
+  if (existing) {
+    if (!existing.read) return existing;
+    db.prepare(
+      `UPDATE notifications
+       SET type = ?, title = ?, message = ?, link = ?, read = 0, created_at = datetime('now')
+       WHERE id = ?`,
+    ).run(
+      input.type ?? 'info',
+      input.title,
+      input.message,
+      input.link ?? null,
+      existing.id,
+    );
+    return db
+      .prepare(`SELECT * FROM notifications WHERE id = ?`)
+      .get(existing.id) as unknown as Notification;
+  }
+
+  try {
+    return createNotification(input);
+  } catch {
+    return null;
+  }
+}
+
+export function listNotifications(limit = 50): Notification[] {
   return getDb()
     .prepare(
       `SELECT * FROM notifications ORDER BY created_at DESC, id DESC LIMIT ?`,
@@ -81,30 +127,4 @@ export function markNotificationRead(id: number): boolean {
 
 export function markAllNotificationsRead(): void {
   getDb().prepare(`UPDATE notifications SET read = 1 WHERE read = 0`).run();
-}
-
-export function syncOverdueNotifications(): void {
-  const overdue = getDb()
-    .prepare(
-      `SELECT i.id, i.number, i.title, c.name AS client_name
-       FROM invoices i
-       JOIN clients c ON c.id = i.client_id
-       WHERE i.status = 'en_retard'`,
-    )
-    .all() as Array<{ id: number; number: string; title: string; client_name: string }>;
-
-  const exists = getDb().prepare(
-    `SELECT id FROM notifications WHERE title = ? AND read = 0 LIMIT 1`,
-  );
-
-  for (const inv of overdue) {
-    const title = `Facture en retard · ${inv.number}`;
-    if (exists.get(title)) continue;
-    createNotification({
-      type: 'danger',
-      title,
-      message: `${inv.client_name} — ${inv.title}`,
-      link: '/invoices',
-    });
-  }
 }

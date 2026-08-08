@@ -1,5 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import {
+  Bell,
+  Calendar,
+  CheckSquare,
   FileText,
   FolderKanban,
   LayoutDashboard,
@@ -12,7 +15,7 @@ import { useBranding } from '../context/BrandingContext';
 import { useI18n } from '../context/I18nContext';
 import type { TranslationKey } from '../i18n/translations';
 
-const links: Array<{
+const primaryLinks: Array<{
   to: string;
   labelKey: TranslationKey;
   icon: typeof LayoutDashboard;
@@ -23,7 +26,8 @@ const links: Array<{
   { to: '/projects', labelKey: 'nav.projects', icon: FolderKanban },
   { to: '/quotes', labelKey: 'nav.quotes', icon: FileText },
   { to: '/invoices', labelKey: 'nav.invoices', icon: Receipt },
-  { to: '/settings', labelKey: 'nav.settings', icon: Settings },
+  { to: '/tasks', labelKey: 'nav.tasks', icon: CheckSquare },
+  { to: '/calendar', labelKey: 'nav.calendar', icon: Calendar },
 ];
 
 interface SidebarProps {
@@ -36,55 +40,79 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const { t } = useI18n();
   const name = String(settings.company_name || 'NexBoard');
   const tagline = String(settings.company_tagline || 'Business OS');
-  const logo = settings.logo_url ? String(settings.logo_url) : '';
+  const logo = settings.logo_url ? String(settings.logo_url) : '/logo.png';
 
   return (
-    <aside className={`sidebar ${open ? 'open' : ''}`} aria-label={t('nav.main')}>
-      <div className="brand">
-        {logo ? (
+    <aside className={`sidebar${open ? ' open' : ''}`} aria-label={t('nav.main')}>
+      <div className="sidebar-inner">
+        <div className="brand">
           <img src={logo} alt="" className="brand-logo" />
-        ) : (
-          <div className="brand-mark" aria-hidden>
-            {name.slice(0, 1).toUpperCase()}
+          <div className="brand-text">
+            <span className="brand-name">{name}</span>
+            <span className="brand-tag">{tagline}</span>
           </div>
-        )}
-        <div className="brand-text">
-          <span className="brand-name">{name}</span>
-          <span className="brand-tag">{tagline}</span>
+          <button
+            type="button"
+            className="sidebar-close mobile-nav-toggle"
+            onClick={onClose}
+            aria-label={t('nav.close')}
+          >
+            <X size={18} />
+          </button>
         </div>
-        <button
-          type="button"
-          className="btn btn-icon btn-ghost mobile-nav-toggle"
-          style={{ marginLeft: 'auto', color: '#e2e8f0', borderColor: 'transparent' }}
-          onClick={onClose}
-          aria-label={t('nav.close')}
-        >
-          <X size={18} />
-        </button>
-      </div>
 
-      <nav>
-        <ul className="nav-list">
-          {links.map(({ to, labelKey, icon: Icon, end }) => (
-            <li key={to}>
+        <nav className="sidebar-nav">
+          <p className="nav-section-label">{t('nav.section.main')}</p>
+          <ul className="nav-list">
+            {primaryLinks.map(({ to, labelKey, icon: Icon, end }) => (
+              <li key={to}>
+                <NavLink
+                  to={to}
+                  end={end}
+                  className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                  onClick={onClose}
+                >
+                  <span className="nav-link-icon">
+                    <Icon size={18} strokeWidth={2} />
+                  </span>
+                  <span className="nav-link-label">{t(labelKey)}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+
+          <p className="nav-section-label">{t('nav.section.system')}</p>
+          <ul className="nav-list">
+            <li>
               <NavLink
-                to={to}
-                end={end}
+                to="/notifications"
                 className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
                 onClick={onClose}
               >
-                <Icon size={18} />
-                <span>{t(labelKey)}</span>
+                <span className="nav-link-icon">
+                  <Bell size={18} strokeWidth={2} />
+                </span>
+                <span className="nav-link-label">{t('nav.notifications')}</span>
               </NavLink>
             </li>
-          ))}
-        </ul>
-      </nav>
+            <li>
+              <NavLink
+                to="/settings"
+                className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}
+                onClick={onClose}
+              >
+                <span className="nav-link-icon">
+                  <Settings size={18} strokeWidth={2} />
+                </span>
+                <span className="nav-link-label">{t('nav.settings')}</span>
+              </NavLink>
+            </li>
+          </ul>
+        </nav>
 
-      <div className="sidebar-footer">
-        <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b', padding: '0 0.55rem' }}>
-          {t('nav.footer')}
-        </p>
+        <div className="sidebar-footer">
+          <p className="sidebar-footer-text">{t('nav.footer')}</p>
+        </div>
       </div>
     </aside>
   );

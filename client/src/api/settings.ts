@@ -1,5 +1,10 @@
 import { api } from './client';
-import type { AppSettings } from '../types';
+import type {
+  AppSettings,
+  ImportConfirmResponse,
+  ImportEntity,
+  ImportPreviewResponse,
+} from '../types';
 
 export function fetchSettings() {
   return api.get<AppSettings>('/api/settings');
@@ -38,12 +43,27 @@ export function testSmtp(to?: string) {
   return api.post<{ ok: boolean; to: string }>('/api/settings/smtp/test', { to });
 }
 
-export function downloadExport(entity: string) {
+export function downloadExport(
+  entity: string,
+  range?: { from?: string; to?: string },
+) {
   const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? '';
-  window.open(`${API_BASE}/api/export/${entity}`, '_blank');
+  const params = new URLSearchParams();
+  if (range?.from) params.set('from', range.from);
+  if (range?.to) params.set('to', range.to);
+  const qs = params.toString();
+  window.open(`${API_BASE}/api/export/${entity}${qs ? `?${qs}` : ''}`, '_blank');
 }
 
 export function downloadBackup() {
   const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? '';
   window.open(`${API_BASE}/api/backup`, '_blank');
+}
+
+export function previewImport(entity: ImportEntity, csv: string) {
+  return api.post<ImportPreviewResponse>(`/api/import/${entity}`, { csv });
+}
+
+export function confirmImport(entity: ImportEntity, csv: string) {
+  return api.post<ImportConfirmResponse>(`/api/import/${entity}`, { csv, confirm: true });
 }

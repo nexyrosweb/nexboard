@@ -5,7 +5,7 @@ import { Modal } from './Modal';
 import { StatusBadge } from './TableBits';
 import { useBranding } from '../context/BrandingContext';
 import { useI18n } from '../context/I18nContext';
-import { formatCurrency, formatDate } from '../utils/format';
+import { formatDate, useFormatCurrency } from '../utils/format';
 
 export type DocumentKind = 'quote' | 'invoice';
 
@@ -14,6 +14,7 @@ export interface DocumentPreviewModel {
   number: string;
   title: string;
   amount: number;
+  currency?: string;
   status: string;
   issue_date: string;
   valid_until?: string | null;
@@ -56,6 +57,7 @@ function DocumentSheet({
   kindLabel: string;
 }) {
   const { t } = useI18n();
+  const formatCurrency = useFormatCurrency();
 
   return (
     <article className="document-sheet" style={{ ['--doc-accent' as string]: brandColor }}>
@@ -148,13 +150,13 @@ function DocumentSheet({
             <td>
               <StatusBadge status={doc.status} />
             </td>
-            <td className="num mono">{formatCurrency(doc.amount)}</td>
+            <td className="num mono">{formatCurrency(doc.amount, doc.currency)}</td>
           </tr>
         </tbody>
         <tfoot>
           <tr>
             <td colSpan={2}>{t('doc.amount')}</td>
-            <td className="num mono">{formatCurrency(doc.amount)}</td>
+            <td className="num mono">{formatCurrency(doc.amount, doc.currency)}</td>
           </tr>
         </tfoot>
       </table>
@@ -183,7 +185,7 @@ export function DocumentPreview({ open, doc, onClose, footerExtra }: DocumentPre
   const companyEmail = str(settings.company_email);
   const companyPhone = str(settings.company_phone);
   const companyAddress = str(settings.company_address);
-  const logoUrl = str(settings.logo_url);
+  const logoUrl = str(settings.logo_url) || '/logo.png';
   const brandColor = str(settings.brand_color) || '#0891B2';
   const kindLabel = doc.kind === 'quote' ? t('doc.quote') : t('doc.invoice');
 

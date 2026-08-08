@@ -11,6 +11,9 @@ const titleKeys: Record<string, TranslationKey> = {
   '/projects': 'nav.projects',
   '/quotes': 'nav.quotes',
   '/invoices': 'nav.invoices',
+  '/tasks': 'nav.tasks',
+  '/calendar': 'nav.calendar',
+  '/notifications': 'nav.notifications',
   '/settings': 'nav.settings',
 };
 

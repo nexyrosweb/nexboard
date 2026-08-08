@@ -12,7 +12,7 @@ import { ConfirmDialog, FormActions, Modal, handleFormSubmit } from '../componen
 import { ListToolbar, PageHeader } from '../components/PageChrome';
 import { ErrorState, LoadingState } from '../components/StateViews';
 import { EmptyTable, RowActions, StatusBadge } from '../components/TableBits';
-import { CLIENT_STATUSES, useStatusOptions } from '../constants/statuses';
+import { useStatusOptions } from '../constants/statuses';
 import { useI18n } from '../context/I18nContext';
 import { useAsyncData } from '../hooks/useAsyncData';
 import type { TranslationKey } from '../i18n/translations';
@@ -229,7 +229,7 @@ export function ClientsPage() {
                 setForm({ ...form, status: e.target.value as Client['status'] })
               }
             >
-              {CLIENT_STATUSES.map((value) => (
+              {statusOptions.clientValues.map((value) => (
                 <option key={value} value={value}>
                   {t(`status.${value}` as TranslationKey)}
                 </option>

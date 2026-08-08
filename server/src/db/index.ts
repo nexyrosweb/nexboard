@@ -6,6 +6,7 @@ import { config } from '../config.js';
 import { createSchema } from './schema.js';
 import { seedDatabase } from './seed.js';
 import { ensureDefaultSettings } from './defaults.js';
+import { migrateSchema } from './migrate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverRoot = path.resolve(__dirname, '../..');
@@ -35,6 +36,7 @@ export function initDatabase(): DatabaseSync {
   db.exec('PRAGMA foreign_keys = ON');
 
   createSchema(db);
+  migrateSchema(db);
   ensureDefaultSettings(db);
 
   const clientCount = db.prepare('SELECT COUNT(*) AS count FROM clients').get() as {

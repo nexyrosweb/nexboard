@@ -1,8 +1,7 @@
 import { FileText, FolderKanban, Receipt } from 'lucide-react';
 import { useI18n } from '../context/I18nContext';
-import type { TranslationKey } from '../i18n/translations';
 import type { ActivityItem } from '../types';
-import { formatCurrency, formatDate, statusBadgeClass, statusLabelKey } from '../utils/format';
+import { formatDate, statusBadgeClass, useFormatCurrency, useStatusLabel } from '../utils/format';
 
 interface ActivityFeedProps {
   items: ActivityItem[];
@@ -21,6 +20,8 @@ function iconFor(type: ActivityItem['type']) {
 
 export function ActivityFeed({ items }: ActivityFeedProps) {
   const { t } = useI18n();
+  const formatCurrency = useFormatCurrency();
+  const statusLabel = useStatusLabel();
 
   if (!items.length) {
     return <div className="empty-state">{t('dash.noActivity')}</div>;
@@ -45,7 +46,7 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
             ) : null}
             <div style={{ marginTop: '0.25rem' }}>
               <span className={statusBadgeClass(item.status)}>
-                {t(statusLabelKey(item.status) as TranslationKey)}
+                {statusLabel(item.status)}
               </span>
             </div>
             <div className="activity-date">{formatDate(item.date)}</div>

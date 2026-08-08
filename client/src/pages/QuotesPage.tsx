@@ -21,42 +21,58 @@ import { ConfirmDialog, FormActions, Modal, handleFormSubmit } from '../componen
 import { ListToolbar, PageHeader } from '../components/PageChrome';
 import { ErrorState, LoadingState } from '../components/StateViews';
 import { EmptyTable, RowActions, StatusBadge } from '../components/TableBits';
-import { QUOTE_STATUSES, useStatusOptions } from '../constants/statuses';
+import {
+  useCurrencyOptions,
+  useDefaultCurrency,
+  useStatusOptions,
+} from '../constants/statuses';
 import { useI18n } from '../context/I18nContext';
 import { useToast } from '../context/ToastContext';
 import { useAsyncData } from '../hooks/useAsyncData';
 import type { TranslationKey } from '../i18n/translations';
 import type { Client, Project, Quote } from '../types';
-import { formatCurrency, formatDate } from '../utils/format';
+import { formatDate, useFormatCurrency } from '../utils/format';
 import { parseApiError, todayISO, useDebouncedValue } from '../utils/hooks';
 
-const emptyForm = (): QuoteInput => ({
+const emptyForm = (currency: string): QuoteInput => ({
   client_id: 0,
   project_id: null,
   title: '',
   amount: 0,
+  currency,
   status: 'brouillon',
   issue_date: todayISO(),
   valid_until: '',
 });
 
-function canConvert(status: Quote['status']) {
+function canConvert(status: string) {
   return status === 'envoye' || status === 'accepte' || status === 'brouillon';
 }
 
 export function QuotesPage() {
   const { t } = useI18n();
   const { push } = useToast();
+  const formatCurrency = useFormatCurrency();
+  const defaultCurrency = useDefaultCurrency();
+  const currencyOptions = useCurrencyOptions();
   const statusOptions = useStatusOptions();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const debouncedSearch = useDebouncedValue(search);
   const [clients, setClients] = useState<Client[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
 
   const loader = useCallback(
-    () => fetchQuotes({ q: debouncedSearch || undefined, status: status || undefined }),
-    [debouncedSearch, status],
+    () =>
+      fetchQuotes({
+        q: debouncedSearch || undefined,
+        status: status || undefined,
+        from: dateFrom || undefined,
+        to: dateTo || undefined,
+      }),
+    [debouncedSearch, status, dateFrom, dateTo],
   );
   const { data, loading, error, reload } = useAsyncData(loader);
 
@@ -74,7 +90,7 @@ export function QuotesPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Quote | null>(null);
-  const [form, setForm] = useState<QuoteInput>(emptyForm());
+  const [form, setForm] = useState<QuoteInput>(() => emptyForm(defaultCurrency));
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<Quote | null>(null);
@@ -101,6 +117,7 @@ export function QuotesPage() {
         number: quote.number,
         title: quote.title,
         amount: quote.amount,
+        currency: quote.currency,
         status: quote.status,
         issue_date: quote.issue_date,
         valid_until: quote.valid_until,
@@ -117,7 +134,7 @@ export function QuotesPage() {
   const openCreate = () => {
     setEditing(null);
     setForm({
-      ...emptyForm(),
+      ...emptyForm(defaultCurrency),
       client_id: clients[0]?.id ?? 0,
     });
     setFormError(null);
@@ -132,6 +149,7 @@ export function QuotesPage() {
       number: quote.number,
       title: quote.title,
       amount: quote.amount,
+      currency: quote.currency,
       status: quote.status,
       issue_date: quote.issue_date,
       valid_until: quote.valid_until ?? '',
@@ -210,7 +228,16 @@ export function QuotesPage() {
         description={t('quotes.desc')}
         action={
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <button type="button" className="btn btn-ghost" onClick={() => downloadExport('quotes')}>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() =>
+                downloadExport('quotes', {
+                  from: dateFrom || undefined,
+                  to: dateTo || undefined,
+                })
+              }
+            >
               {t('common.exportCsv')}
             </button>
             <button type="button" className="btn btn-primary" onClick={openCreate}>
@@ -228,6 +255,10 @@ export function QuotesPage() {
         status={status}
         onStatusChange={setStatus}
         statusOptions={statusOptions.quotes}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        onDateFromChange={setDateFrom}
+        onDateToChange={setDateTo}
         countLabel={countLabel}
       />
 
@@ -277,7 +308,9 @@ export function QuotesPage() {
                           <strong>{quote.title}</strong>
                         </td>
                         <td>{quote.client_name}</td>
-                        <td className="mono">{formatCurrency(quote.amount)}</td>
+                        <td className="mono">
+                          {formatCurrency(quote.amount, quote.currency)}
+                        </td>
                         <td>
                           <StatusBadge status={quote.status} />
                         </td>
@@ -387,15 +420,27 @@ export function QuotesPage() {
             />
           </label>
           <label className="field">
+            <span className="field-label">{t('settings.currency')}</span>
+            <select
+              className="select"
+              value={form.currency ?? defaultCurrency}
+              onChange={(e) => setForm({ ...form, currency: e.target.value })}
+            >
+              {currencyOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
             <span className="field-label">{t('quotes.field.status')}</span>
             <select
               className="select"
               value={form.status}
-              onChange={(e) =>
-                setForm({ ...form, status: e.target.value as Quote['status'] })
-              }
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
             >
-              {QUOTE_STATUSES.map((value) => (
+              {statusOptions.quoteValues.map((value) => (
                 <option key={value} value={value}>
                   {t(`status.${value}` as TranslationKey)}
                 </option>
@@ -438,7 +483,10 @@ export function QuotesPage() {
                   label: t('quotes.field.project'),
                   value: detail.project_name || t('common.none'),
                 },
-                { label: t('quotes.col.amount'), value: formatCurrency(detail.amount) },
+                {
+                  label: t('quotes.col.amount'),
+                  value: formatCurrency(detail.amount, detail.currency),
+                },
                 { label: t('quotes.col.status'), value: <StatusBadge status={detail.status} /> },
                 { label: t('quotes.col.issue'), value: formatDate(detail.issue_date) },
                 {

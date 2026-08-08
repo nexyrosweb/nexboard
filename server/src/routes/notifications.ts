@@ -1,17 +1,19 @@
 import type { FastifyInstance } from 'fastify';
+import { syncSmartNotifications } from '../services/alerts.js';
 import {
   listNotifications,
   markAllNotificationsRead,
   markNotificationRead,
-  syncOverdueNotifications,
   unreadCount,
 } from '../services/app.js';
 
 export async function notificationsRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/api/notifications', async () => {
-    syncOverdueNotifications();
+  app.get('/api/notifications', async (request) => {
+    syncSmartNotifications();
+    const query = request.query as { limit?: string };
+    const limit = Math.min(100, Math.max(1, Number(query.limit) || 50));
     return {
-      items: listNotifications(),
+      items: listNotifications(limit),
       unread: unreadCount(),
     };
   });

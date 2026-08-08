@@ -2,6 +2,13 @@ import type { FastifyInstance } from 'fastify';
 import { getDb } from '../db/index.js';
 import { createNotification, getSetting } from '../services/app.js';
 import { sendMail } from '../services/mail.js';
+import { buildDocumentPdf } from '../services/pdf.js';
+import {
+  getDefaultCurrency,
+  isValidCurrency,
+  isValidStatus,
+} from '../services/statuses.js';
+import { nextQuoteNumber, nextInvoiceNumber, numberAsFilename } from '../services/documentNumbers.js';
 
 type QuoteBody = {
   client_id?: number;
@@ -9,25 +16,17 @@ type QuoteBody = {
   number?: string;
   title?: string;
   amount?: number;
+  currency?: string;
   status?: string;
   issue_date?: string;
   valid_until?: string | null;
 };
 
-const STATUSES = new Set(['brouillon', 'envoye', 'accepte', 'refuse', 'expire']);
-
-function nextNumber(): string {
-  const year = new Date().getFullYear();
-  const row = getDb()
-    .prepare(`SELECT COUNT(*) AS c FROM quotes WHERE number LIKE ?`)
-    .get(`DEV-${year}-%`) as { c: number };
-  return `DEV-${year}-${String(row.c + 1).padStart(3, '0')}`;
-}
-
 function validate(body: QuoteBody) {
   if (!body.client_id) return 'Le client est obligatoire';
   if (!body.title?.trim()) return 'Le titre est obligatoire';
-  if (body.status && !STATUSES.has(body.status)) return 'Statut invalide';
+  if (body.status && !isValidStatus('quotes', body.status)) return 'Statut invalide';
+  if (body.currency && !isValidCurrency(body.currency)) return 'Devise invalide';
   if (!body.issue_date) return 'La date d’émission est obligatoire';
   return null;
 }
@@ -42,7 +41,12 @@ const SELECT = `
 export async function quotesRoutes(app: FastifyInstance): Promise<void> {
   app.get('/api/quotes', async (request) => {
     const db = getDb();
-    const query = request.query as { q?: string; status?: string };
+    const query = request.query as {
+      q?: string;
+      status?: string;
+      from?: string;
+      to?: string;
+    };
     const conditions: string[] = [];
     const params: string[] = [];
 
@@ -55,6 +59,14 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
       conditions.push(`q.status = ?`);
       params.push(query.status);
     }
+    if (query.from) {
+      conditions.push(`q.issue_date >= ?`);
+      params.push(query.from);
+    }
+    if (query.to) {
+      conditions.push(`q.issue_date <= ?`);
+      params.push(query.to);
+    }
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
     return db.prepare(`${SELECT} ${where} ORDER BY q.created_at DESC`).all(...params);
@@ -65,12 +77,13 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
     const error = validate(body);
     if (error) return reply.status(400).send({ error });
 
-    const number = body.number?.trim() || nextNumber();
+    const number = body.number?.trim() || nextQuoteNumber();
     const issueDate = body.issue_date as string;
+    const currency = (body.currency || getDefaultCurrency()).toUpperCase();
     const result = getDb()
       .prepare(
-        `INSERT INTO quotes (client_id, project_id, number, title, amount, status, issue_date, valid_until)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO quotes (client_id, project_id, number, title, amount, currency, status, issue_date, valid_until)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .run(
         Number(body.client_id),
@@ -78,6 +91,7 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
         number,
         body.title!.trim(),
         Number(body.amount) || 0,
+        currency,
         body.status || 'brouillon',
         issueDate,
         body.valid_until || null,
@@ -96,19 +110,21 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
     if (error) return reply.status(400).send({ error });
 
     const issueDate = body.issue_date as string;
+    const currency = (body.currency || getDefaultCurrency()).toUpperCase();
     getDb()
       .prepare(
         `UPDATE quotes
-         SET client_id = ?, project_id = ?, number = ?, title = ?, amount = ?,
+         SET client_id = ?, project_id = ?, number = ?, title = ?, amount = ?, currency = ?,
              status = ?, issue_date = ?, valid_until = ?, updated_at = datetime('now')
          WHERE id = ?`,
       )
       .run(
         Number(body.client_id),
         body.project_id ? Number(body.project_id) : null,
-        body.number?.trim() || nextNumber(),
+        body.number?.trim() || nextQuoteNumber(),
         body.title!.trim(),
         Number(body.amount) || 0,
+        currency,
         body.status || 'brouillon',
         issueDate,
         body.valid_until || null,
@@ -135,6 +151,7 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
           number: string;
           title: string;
           amount: number;
+          currency: string;
           status: string;
         }
       | undefined;
@@ -151,20 +168,17 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
-    const year = new Date().getFullYear();
-    const countRow = getDb()
-      .prepare(`SELECT COUNT(*) AS c FROM invoices WHERE number LIKE ?`)
-      .get(`FAC-${year}-%`) as { c: number };
-    const invoiceNumber = `FAC-${year}-${String(countRow.c + 1).padStart(3, '0')}`;
+    const invoiceNumber = nextInvoiceNumber();
     const issueDate = new Date().toISOString().slice(0, 10);
     const due = new Date();
     due.setDate(due.getDate() + 30);
     const dueDate = due.toISOString().slice(0, 10);
+    const currency = quote.currency || getDefaultCurrency();
 
     const result = getDb()
       .prepare(
-        `INSERT INTO invoices (client_id, project_id, quote_id, number, title, amount, status, issue_date, due_date)
-         VALUES (?, ?, ?, ?, ?, ?, 'brouillon', ?, ?)`,
+        `INSERT INTO invoices (client_id, project_id, quote_id, number, title, amount, currency, status, issue_date, due_date)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'brouillon', ?, ?)`,
       )
       .run(
         quote.client_id,
@@ -173,6 +187,7 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
         invoiceNumber,
         quote.title,
         quote.amount,
+        currency,
         issueDate,
         dueDate,
       );
@@ -207,8 +222,12 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
   app.post<{ Params: { id: string } }>('/api/quotes/:id/send', async (request, reply) => {
     const quote = getDb()
       .prepare(
-        `SELECT q.*, c.name AS client_name, c.email AS client_email
-         FROM quotes q JOIN clients c ON c.id = q.client_id WHERE q.id = ?`,
+        `SELECT q.*, c.name AS client_name, c.email AS client_email, c.company AS client_company,
+                p.name AS project_name
+         FROM quotes q
+         JOIN clients c ON c.id = q.client_id
+         LEFT JOIN projects p ON p.id = q.project_id
+         WHERE q.id = ?`,
       )
       .get(Number(request.params.id)) as
       | {
@@ -216,20 +235,49 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
           number: string;
           title: string;
           amount: number;
+          currency: string;
+          status: string;
+          issue_date: string;
+          valid_until: string | null;
           client_name: string;
           client_email: string;
+          client_company: string | null;
+          project_name: string | null;
         }
       | undefined;
 
     if (!quote) return reply.status(404).send({ error: 'Devis introuvable' });
 
     const company = getSetting('company_name', 'NexBoard');
+    const currency = quote.currency || getDefaultCurrency();
     try {
+      const pdf = await buildDocumentPdf({
+        kind: 'quote',
+        number: quote.number,
+        title: quote.title,
+        amount: quote.amount,
+        currency,
+        status: quote.status,
+        issue_date: quote.issue_date,
+        valid_until: quote.valid_until,
+        client_name: quote.client_name,
+        client_email: quote.client_email,
+        client_company: quote.client_company,
+        project_name: quote.project_name,
+      });
+
       await sendMail({
         to: quote.client_email,
         subject: `[${company}] Devis ${quote.number} — ${quote.title}`,
-        text: `Bonjour ${quote.client_name},\n\nVoici votre devis ${quote.number} (${quote.title}) d’un montant de ${quote.amount} €.\n\nCordialement,\n${company}`,
-        html: `<p>Bonjour ${quote.client_name},</p><p>Voici votre devis <strong>${quote.number}</strong> — ${quote.title}.</p><p>Montant : <strong>${quote.amount} €</strong></p><p>Cordialement,<br/>${company}</p>`,
+        text: `Bonjour ${quote.client_name},\n\nVoici votre devis ${quote.number} (${quote.title}) d’un montant de ${quote.amount} ${currency}.\n\nLe PDF est joint à cet e-mail.\n\nCordialement,\n${company}`,
+        html: `<p>Bonjour ${quote.client_name},</p><p>Voici votre devis <strong>${quote.number}</strong> — ${quote.title}.</p><p>Montant : <strong>${quote.amount} ${currency}</strong></p><p>Le PDF est joint à cet e-mail.</p><p>Cordialement,<br/>${company}</p>`,
+        attachments: [
+          {
+            filename: numberAsFilename(quote.number),
+            content: pdf,
+            contentType: 'application/pdf',
+          },
+        ],
       });
       getDb()
         .prepare(`UPDATE quotes SET status = 'envoye', updated_at = datetime('now') WHERE id = ?`)
@@ -237,7 +285,7 @@ export async function quotesRoutes(app: FastifyInstance): Promise<void> {
       createNotification({
         type: 'success',
         title: `Devis envoyé · ${quote.number}`,
-        message: `Envoyé à ${quote.client_email}`,
+        message: `Envoyé à ${quote.client_email} (PDF joint)`,
         link: '/quotes',
       });
       return getDb().prepare(`${SELECT} WHERE q.id = ?`).get(quote.id);

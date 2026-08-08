@@ -18,6 +18,7 @@ const ALLOWED = new Set([
   'company_address',
   'company_tagline',
   'currency',
+  'currencies',
   'theme',
   'brand_color',
   'logo_url',
@@ -28,6 +29,19 @@ const ALLOWED = new Set([
   'smtp_pass',
   'smtp_from',
   'locale',
+  'notify_email',
+  'reminder_enabled',
+  'reminder_email',
+  'reminder_interval_hours',
+  'statuses_clients',
+  'statuses_projects',
+  'statuses_quotes',
+  'statuses_invoices',
+  'quote_number_format',
+  'invoice_number_format',
+  'dashboard_layout',
+  'alert_quote_days',
+  'alert_project_days',
 ]);
 
 const COLOR_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;

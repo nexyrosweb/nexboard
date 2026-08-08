@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { getDb } from '../db/index.js';
+import { isValidStatus } from '../services/statuses.js';
 
 type ClientBody = {
   name?: string;
@@ -19,7 +20,7 @@ function likeParam(value: string): string {
 function validate(body: ClientBody) {
   if (!body.name?.trim()) return 'Le nom est obligatoire';
   if (!body.email?.trim()) return 'L’e-mail est obligatoire';
-  if (body.status && !STATUSES.has(body.status)) return 'Statut invalide';
+  if (body.status && !isValidStatus('clients', body.status)) return 'Statut invalide';
   return null;
 }
 

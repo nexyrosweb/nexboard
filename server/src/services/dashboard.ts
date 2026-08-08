@@ -3,12 +3,30 @@ import { getDb } from '../db/index.js';
 export interface DashboardStats {
   clientsTotal: number;
   clientsActive: number;
+  clientsNewMonth: number;
   projectsTotal: number;
   projectsActive: number;
   quotesPending: number;
+  quotesTotal: number;
+  quotesAccepted: number;
+  quoteConversionRate: number;
   invoicesOutstanding: number;
   revenuePaid: number;
   revenuePending: number;
+  revenueMonth: number;
+  unpaidAmount: number;
+  unpaidCount: number;
+  tasksToday: number;
+}
+
+export interface DashboardTask {
+  id: number;
+  title: string;
+  priority: string;
+  due_date: string | null;
+  status: string;
+  assignee: string | null;
+  client_name: string | null;
 }
 
 export interface RevenuePoint {
@@ -41,6 +59,7 @@ export interface DashboardData {
   invoicesByStatus: StatusSlice[];
   projectsByStatus: StatusSlice[];
   recentActivity: ActivityItem[];
+  tasksToday: DashboardTask[];
 }
 
 const MONTH_LABELS = [
@@ -100,6 +119,12 @@ export function getDashboardData(): DashboardData {
       c: number;
     }
   ).c;
+  const monthStart = `${new Date().toISOString().slice(0, 7)}-01`;
+  const clientsNewMonth = (
+    db
+      .prepare(`SELECT COUNT(*) AS c FROM clients WHERE date(created_at) >= ?`)
+      .get(monthStart) as { c: number }
+  ).c;
   const projectsTotal = (
     db.prepare('SELECT COUNT(*) AS c FROM projects').get() as { c: number }
   ).c;
@@ -113,6 +138,18 @@ export function getDashboardData(): DashboardData {
       .prepare(`SELECT COUNT(*) AS c FROM quotes WHERE status IN ('brouillon', 'envoye')`)
       .get() as { c: number }
   ).c;
+  const quotesTotal = (
+    db
+      .prepare(`SELECT COUNT(*) AS c FROM quotes WHERE status != 'brouillon'`)
+      .get() as { c: number }
+  ).c;
+  const quotesAccepted = (
+    db.prepare(`SELECT COUNT(*) AS c FROM quotes WHERE status = 'accepte'`).get() as {
+      c: number;
+    }
+  ).c;
+  const quoteConversionRate =
+    quotesTotal > 0 ? Math.round((quotesAccepted / quotesTotal) * 1000) / 10 : 0;
   const invoicesOutstanding = (
     db
       .prepare(
@@ -132,6 +169,29 @@ export function getDashboardData(): DashboardData {
       )
       .get() as { s: number }
   ).s;
+  const revenueMonth = (
+    db
+      .prepare(
+        `SELECT COALESCE(SUM(amount), 0) AS s FROM invoices
+         WHERE status = 'payee' AND date(COALESCE(paid_at, updated_at)) >= ?`,
+      )
+      .get(monthStart) as { s: number }
+  ).s;
+  const unpaidRow = db
+    .prepare(
+      `SELECT COUNT(*) AS c, COALESCE(SUM(amount), 0) AS s FROM invoices
+       WHERE status IN ('envoyee', 'en_retard')`,
+    )
+    .get() as { c: number; s: number };
+  const tasksTodayCount = (
+    db
+      .prepare(
+        `SELECT COUNT(*) AS c FROM tasks
+         WHERE status NOT IN ('done', 'cancelled')
+           AND due_date IS NOT NULL AND due_date <= date('now')`,
+      )
+      .get() as { c: number }
+  ).c;
 
   const months = buildLastMonths(6);
   const invoiceRows = db
@@ -274,20 +334,45 @@ export function getDashboardData(): DashboardData {
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 8);
 
+  const tasksToday = db
+    .prepare(
+      `SELECT t.id, t.title, t.priority, t.due_date, t.status, t.assignee, c.name AS client_name
+       FROM tasks t
+       LEFT JOIN clients c ON c.id = t.client_id
+       WHERE t.status NOT IN ('done', 'cancelled')
+         AND t.due_date IS NOT NULL
+         AND t.due_date <= date('now')
+       ORDER BY
+         CASE WHEN t.due_date < date('now') THEN 0 ELSE 1 END,
+         CASE t.priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END,
+         t.due_date ASC
+       LIMIT 8`,
+    )
+    .all() as unknown as DashboardTask[];
+
   return {
     stats: {
       clientsTotal,
       clientsActive,
+      clientsNewMonth,
       projectsTotal,
       projectsActive,
       quotesPending,
+      quotesTotal,
+      quotesAccepted,
+      quoteConversionRate,
       invoicesOutstanding,
       revenuePaid,
       revenuePending,
+      revenueMonth,
+      unpaidAmount: unpaidRow.s,
+      unpaidCount: unpaidRow.c,
+      tasksToday: tasksTodayCount,
     },
     revenueByMonth,
     invoicesByStatus,
     projectsByStatus,
     recentActivity,
+    tasksToday,
   };
 }

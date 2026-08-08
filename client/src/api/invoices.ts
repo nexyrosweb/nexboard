@@ -8,13 +8,19 @@ export type InvoiceInput = {
   number?: string;
   title: string;
   amount: number;
-  status: Invoice['status'];
+  currency?: string;
+  status: string;
   issue_date: string;
   due_date?: string | null;
   paid_at?: string | null;
 };
 
-export function fetchInvoices(params: { q?: string; status?: string } = {}) {
+export function fetchInvoices(params: {
+  q?: string;
+  status?: string;
+  from?: string;
+  to?: string;
+} = {}) {
   return api.get<Invoice[]>(`/api/invoices${toQuery(params)}`);
 }
 

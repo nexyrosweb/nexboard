@@ -75,16 +75,16 @@ export function seedDatabase(db: DatabaseSync): void {
     const quoteIds = quotes.map((q) => Number(insertQuote.run(...q).lastInsertRowid));
 
     const invoices = [
-      [clientIds[0], projectIds[0], quoteIds[0], 'FAC-2025-041', 'Acompte refonte site', 4250, 'payee', monthsAgo(5, 5), monthsAgo(5, 20), monthsAgo(5, 18), stamp(5, 5)],
-      [clientIds[0], projectIds[0], quoteIds[0], 'FAC-2025-052', 'Solde refonte site', 4250, 'payee', monthsAgo(4, 16), monthsAgo(4, 31), monthsAgo(4, 28), stamp(4, 16)],
-      [clientIds[1], projectIds[1], quoteIds[1], 'FAC-2026-003', 'Acompte MVP mobile', 11000, 'payee', monthsAgo(3, 15), monthsAgo(3, 30), monthsAgo(3, 27), stamp(3, 15, 9)],
-      [clientIds[3], projectIds[3], quoteIds[3], 'FAC-2026-008', 'Phase 1 dashboard', 7500, 'envoyee', monthsAgo(1, 12), monthsAgo(1, 27), null, stamp(1, 12, 14)],
-      [clientIds[3], projectIds[3], quoteIds[3], 'FAC-2026-015', 'Phase 2 dashboard', 5500, 'en_retard', monthsAgo(2, 5), monthsAgo(2, 20), null, stamp(2, 5, 11)],
-      [clientIds[5], projectIds[4], quoteIds[4], 'FAC-2026-018', 'Acompte module OrbitPay', 15500, 'envoyee', monthsAgo(0, 20), monthsAgo(-1, 5), null, stamp(0, 20)],
-      [clientIds[1], projectIds[1], quoteIds[1], 'FAC-2026-021', 'Sprint courant', 4800, 'brouillon', monthsAgo(0, 1), monthsAgo(0, 15), null, stamp(0, 1, 16)],
-      [clientIds[1], projectIds[1], quoteIds[1], 'FAC-2026-011', 'Sprint précédent', 6200, 'payee', monthsAgo(2, 10), monthsAgo(2, 25), monthsAgo(2, 22), stamp(2, 10)],
-      [clientIds[5], projectIds[4], quoteIds[4], 'FAC-2026-007', 'Atelier cadrage', 3200, 'payee', monthsAgo(1, 8), monthsAgo(1, 22), monthsAgo(1, 18), stamp(1, 8)],
-      [clientIds[4], projectIds[5], null, 'FAC-2025-019', 'Étude préliminaire', 900, 'annulee', monthsAgo(9, 10), monthsAgo(9, 25), null, stamp(9, 10, 9)],
+      [clientIds[0], projectIds[0], quoteIds[0], 'FAC - 2025 - 041', 'Acompte refonte site', 4250, 'payee', monthsAgo(5, 5), monthsAgo(5, 20), monthsAgo(5, 18), stamp(5, 5)],
+      [clientIds[0], projectIds[0], quoteIds[0], 'FAC - 2025 - 052', 'Solde refonte site', 4250, 'payee', monthsAgo(4, 16), monthsAgo(4, 31), monthsAgo(4, 28), stamp(4, 16)],
+      [clientIds[1], projectIds[1], quoteIds[1], 'FAC - 2026 - 003', 'Acompte MVP mobile', 11000, 'payee', monthsAgo(3, 15), monthsAgo(3, 30), monthsAgo(3, 27), stamp(3, 15, 9)],
+      [clientIds[3], projectIds[3], quoteIds[3], 'FAC - 2026 - 008', 'Phase 1 dashboard', 7500, 'envoyee', monthsAgo(1, 12), monthsAgo(1, 27), null, stamp(1, 12, 14)],
+      [clientIds[3], projectIds[3], quoteIds[3], 'FAC - 2026 - 015', 'Phase 2 dashboard', 5500, 'en_retard', monthsAgo(2, 5), monthsAgo(2, 20), null, stamp(2, 5, 11)],
+      [clientIds[5], projectIds[4], quoteIds[4], 'FAC - 2026 - 018', 'Acompte module OrbitPay', 15500, 'envoyee', monthsAgo(0, 20), monthsAgo(-1, 5), null, stamp(0, 20)],
+      [clientIds[1], projectIds[1], quoteIds[1], 'FAC - 2026 - 021', 'Sprint courant', 4800, 'brouillon', monthsAgo(0, 1), monthsAgo(0, 15), null, stamp(0, 1, 16)],
+      [clientIds[1], projectIds[1], quoteIds[1], 'FAC - 2026 - 011', 'Sprint précédent', 6200, 'payee', monthsAgo(2, 10), monthsAgo(2, 25), monthsAgo(2, 22), stamp(2, 10)],
+      [clientIds[5], projectIds[4], quoteIds[4], 'FAC - 2026 - 007', 'Atelier cadrage', 3200, 'payee', monthsAgo(1, 8), monthsAgo(1, 22), monthsAgo(1, 18), stamp(1, 8)],
+      [clientIds[4], projectIds[5], null, 'FAC - 2025 - 019', 'Étude préliminaire', 900, 'annulee', monthsAgo(9, 10), monthsAgo(9, 25), null, stamp(9, 10, 9)],
     ] as const;
 
     invoices.forEach((inv) => insertInvoice.run(...inv));
