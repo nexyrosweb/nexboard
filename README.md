@@ -14,8 +14,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/nexyrosweb/nexboard/releases"><img src="https://img.shields.io/github/v/release/nexyrosweb/nexboard?label=release" alt="GitHub release"></a>
-  <a href="https://www.npmjs.com/package/nexboard"><img src="https://img.shields.io/npm/v/nexboard.svg" alt="npm version"></a>
+  <a href="https://github.com/nexyrosweb/nexboard/releases/tag/v1.2.0"><img src="https://img.shields.io/badge/release-v1.2.0-blue" alt="GitHub release v1.2.0"></a>
+  <a href="https://www.npmjs.com/package/nexboard/v/1.2.0"><img src="https://img.shields.io/badge/npm-v1.2.0-cb3837" alt="npm version 1.2.0"></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/changelog-Keep%20a%20Changelog-blue.svg" alt="Changelog"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
   <a href="https://github.com/nexyrosweb/nexboard"><img src="https://img.shields.io/github/stars/nexyrosweb/nexboard?style=social" alt="GitHub stars"></a>
