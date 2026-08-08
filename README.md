@@ -395,7 +395,7 @@ Notes complètes : [`CHANGELOG.md`](CHANGELOG.md) · [Release GitHub](https://gi
 * 🏷️ Statuts personnalisables par entité
 * ⏰ Relances de factures en retard (in-app + e-mail optionnel)
 * 🌙 Mode clair et sombre
-* 🎨 Logo, couleur de marque et interface multilingue
+* 🎨 Logo, couleur de marque et interface multilingue (EN / FR / ES / DE / JA)
 * 🔔 Centre de notifications intelligent
 * ✉️ Configuration SMTP et e-mails de test
 * ⚙️ Paramètres de l’application
@@ -442,6 +442,7 @@ Notes complètes : [`CHANGELOG.md`](CHANGELOG.md) · [Release GitHub](https://gi
 
 NexBoard suit le [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
 
+- Version actuelle : **v1.2.0**
 - Journal des versions : [`CHANGELOG.md`](CHANGELOG.md)
 - Releases GitHub : https://github.com/nexyrosweb/nexboard/releases
 
@@ -501,6 +502,7 @@ nexboard/
 │
 ├── .env.example
 ├── .gitignore
+├── CHANGELOG.md
 ├── LICENSE
 ├── package.json
 └── README.md
@@ -515,9 +517,9 @@ nexboard/
 
 #### Installation rapide (npm)
 
-Installez le package :
-
 ```bash
+npm i nexboard@1.2.0
+# ou dernière version
 npm i nexboard
 ```
 
@@ -646,8 +648,8 @@ NexBoard repose sur plusieurs principes :
 * [x] Vue calendrier
 * [x] Import CSV
 * [x] Centre de notifications intelligent
+* [x] Génération PDF (pièces jointes e-mail + impression navigateur)
 * [ ] Authentification
-* [ ] Export PDF
 * [ ] Gestion des utilisateurs
 * [ ] Rôles et permissions
 * [ ] Statistiques avancées
