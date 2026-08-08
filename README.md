@@ -89,34 +89,46 @@ Full notes: [`CHANGELOG.md`](CHANGELOG.md) · [GitHub Release](https://github.co
 #### Dashboard
 
 <p align="center">
-  <img src="docs/images/Dashboard.png" alt="Dashboard">
+  <img src="docs/images/Dashboard.png" alt="Dashboard" width="900">
 </p>
 
 #### Customers
 
 <p align="center">
-  <img src="docs/images/Clients.png" alt="Customer Management">
+  <img src="docs/images/Clients.png" alt="Customer Management" width="900">
 </p>
 
 #### Projects
 
 <p align="center">
-  <img src="docs/images/Project.png" alt="Project Management">
+  <img src="docs/images/Project.png" alt="Project Management" width="900">
 </p>
 
 #### Quotes
 
 <p align="center">
-  <img src="docs/images/Devis.png" alt="Quotes Management">
+  <img src="docs/images/Devis.png" alt="Quotes Management" width="900">
 </p>
 
 #### Invoices
 
 <p align="center">
-  <img src="docs/images/Factures.png" alt="Invoice Management">
+  <img src="docs/images/Factures.png" alt="Invoice Management" width="900">
 </p>
 
-> Screenshots: `Dashboard.png`, `Clients.png`, `Project.png`, `Devis.png`, `Factures.png`.
+#### Tasks
+
+<p align="center">
+  <img src="docs/images/Tasks.png" alt="Tasks" width="900">
+</p>
+
+#### Calendar
+
+<p align="center">
+  <img src="docs/images/Calendar.png" alt="Calendar" width="900">
+</p>
+
+> Screenshots: `Dashboard.png`, `Clients.png`, `Project.png`, `Devis.png`, `Factures.png`, `Tasks.png`, `Calendar.png`.
 
 ### Versioning
 
@@ -409,34 +421,46 @@ Notes complètes : [`CHANGELOG.md`](CHANGELOG.md) · [Release GitHub](https://gi
 #### Tableau de bord
 
 <p align="center">
-  <img src="docs/images/Dashboard.png" alt="Tableau de bord">
+  <img src="docs/images/Dashboard.png" alt="Tableau de bord" width="900">
 </p>
 
 #### Clients
 
 <p align="center">
-  <img src="docs/images/Clients.png" alt="Gestion des clients">
+  <img src="docs/images/Clients.png" alt="Gestion des clients" width="900">
 </p>
 
 #### Projets
 
 <p align="center">
-  <img src="docs/images/Project.png" alt="Gestion des projets">
+  <img src="docs/images/Project.png" alt="Gestion des projets" width="900">
 </p>
 
 #### Devis
 
 <p align="center">
-  <img src="docs/images/Devis.png" alt="Gestion des devis">
+  <img src="docs/images/Devis.png" alt="Gestion des devis" width="900">
 </p>
 
 #### Factures
 
 <p align="center">
-  <img src="docs/images/Factures.png" alt="Gestion des factures">
+  <img src="docs/images/Factures.png" alt="Gestion des factures" width="900">
 </p>
 
-> Captures : `Dashboard.png`, `Clients.png`, `Project.png`, `Devis.png`, `Factures.png`.
+#### Tâches
+
+<p align="center">
+  <img src="docs/images/Tasks.png" alt="Tâches" width="900">
+</p>
+
+#### Calendrier
+
+<p align="center">
+  <img src="docs/images/Calendar.png" alt="Calendrier" width="900">
+</p>
+
+> Captures : `Dashboard.png`, `Clients.png`, `Project.png`, `Devis.png`, `Factures.png`, `Tasks.png`, `Calendar.png`.
 
 ### Versioning
 
