@@ -5,7 +5,8 @@
 </p>
 
 <p align="center">
-  <strong>Modern, modular and lightweight business management dashboard.</strong>
+  <strong>Modern, modular and lightweight business management dashboard.</strong><br/>
+  <em>Latest release: <a href="https://github.com/nexyrosweb/nexboard/releases/tag/v1.2.0">v1.2.0</a></em>
 </p>
 
 <p align="center">
@@ -31,9 +32,21 @@
 
 ### About NexBoard
 
-**NexBoard** is a modern business management dashboard designed to provide a clean, fast and intuitive interface for managing everyday business operations.
+**NexBoard** is a modern business management dashboard designed to provide a clean, fast and intuitive interface for managing everyday business operations — clients, projects, quotes, invoices, tasks and calendar — in one place.
 
 The project uses a client-server architecture and is designed to remain lightweight, modular and easy to install on Windows, Linux, macOS or a VPS.
+
+### What’s new in v1.2.0
+
+* Customizable dashboard widgets (drag / hide)
+* Tasks & reminders + calendar (week/month)
+* Smart notification center
+* CSV import (clients/projects) with duplicate detection
+* Multi-currency, custom statuses, overdue reminders
+* PDF attachments on email send + configurable document numbers (`DEV-2026-012`, `FAC - 2026 - 018`)
+* Official NexBoard logo & favicon
+
+Full notes: [`CHANGELOG.md`](CHANGELOG.md) · [GitHub Release](https://github.com/nexyrosweb/nexboard/releases/tag/v1.2.0)
 
 ### Preview
 
@@ -53,6 +66,7 @@ The project uses a client-server architecture and is designed to remain lightwei
 * 🧾 Quotes and invoices (CRUD + email send with PDF attachments)
 * 🖨️ Printable document preview (save as PDF via browser)
 * 🔁 Convert quote → invoice
+* 🔢 Configurable document numbers (quotes / invoices)
 * 🗂️ Detail sheets with quick actions
 * 📈 Charts and analytics (Recharts)
 * 🔎 Search, filters and date-range export
@@ -61,7 +75,7 @@ The project uses a client-server architecture and is designed to remain lightwei
 * 🏷️ Custom statuses per entity
 * ⏰ Overdue invoice reminders (in-app + optional email)
 * 🌙 Light and dark mode
-* 🎨 Logo, brand color and multi-language UI
+* 🎨 Logo, brand color and multi-language UI (EN / FR / ES / DE / JA)
 * 🔔 Smart notification center
 * ✉️ SMTP configuration and test emails
 * ⚙️ Application settings
@@ -108,6 +122,7 @@ The project uses a client-server architecture and is designed to remain lightwei
 
 NexBoard follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
 
+- Current: **v1.2.0**
 - Changelog: [`CHANGELOG.md`](CHANGELOG.md)
 - GitHub Releases: https://github.com/nexyrosweb/nexboard/releases
 
@@ -167,6 +182,7 @@ nexboard/
 │
 ├── .env.example
 ├── .gitignore
+├── CHANGELOG.md
 ├── LICENSE
 ├── package.json
 └── README.md
@@ -181,9 +197,9 @@ nexboard/
 
 #### Quick install (npm)
 
-Install the package:
-
 ```bash
+npm i nexboard@1.2.0
+# or latest
 npm i nexboard
 ```
 
@@ -312,8 +328,8 @@ NexBoard is built around a few core principles:
 * [x] Calendar view
 * [x] CSV import
 * [x] Smart notification center
+* [x] PDF generation (email attachments + browser print)
 * [ ] Authentication
-* [ ] PDF export
 * [ ] User management
 * [ ] Roles and permissions
 * [ ] Advanced analytics
@@ -336,9 +352,21 @@ See the [`LICENSE`](LICENSE) file for more information.
 
 ### À propos de NexBoard
 
-**NexBoard** est un dashboard moderne de gestion d’entreprise permettant de centraliser les opérations quotidiennes dans une interface simple, rapide et intuitive.
+**NexBoard** est un dashboard moderne de gestion d’entreprise permettant de centraliser les opérations quotidiennes — clients, projets, devis, factures, tâches et calendrier — dans une interface simple, rapide et intuitive.
 
 Le projet utilise une architecture client-serveur et est pensé pour rester léger, modulaire et facilement installable sur Windows, Linux, macOS ou un VPS.
+
+### Nouveautés v1.2.0
+
+* Tableau de bord personnalisable (glisser / masquer)
+* Tâches & rappels + calendrier (semaine/mois)
+* Centre de notifications intelligent
+* Import CSV (clients/projets) avec détection des doublons
+* Multi-devises, statuts personnalisés, relances factures
+* PDF joint à l’e-mail + numéros de documents configurables (`DEV-2026-012`, `FAC - 2026 - 018`)
+* Logo et favicon NexBoard officiels
+
+Notes complètes : [`CHANGELOG.md`](CHANGELOG.md) · [Release GitHub](https://github.com/nexyrosweb/nexboard/releases/tag/v1.2.0)
 
 ### Aperçu
 
@@ -358,6 +386,7 @@ Le projet utilise une architecture client-serveur et est pensé pour rester lég
 * 🧾 Devis et factures (CRUD + envoi e-mail avec PDF joint)
 * 🖨️ Aperçu document imprimable (PDF via navigateur)
 * 🔁 Conversion devis → facture
+* 🔢 Numéros de documents configurables (devis / factures)
 * 🗂️ Fiches détail avec actions rapides
 * 📈 Graphiques et analytics (Recharts)
 * 🔎 Recherche, filtres et export par plage de dates
