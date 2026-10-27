@@ -7,10 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Planned
-- Line items & VAT on quotes/invoices
-- Authentication / API protection
-- Multi-user & roles
+### Added
+- Public **NexBoard 2.0** roadmap ([`ROADMAP.md`](ROADMAP.md)) with Alpha → Stable phases and verified checklists
+- Technical audit baseline for 2.0 ([`docs/AUDIT-2.0.md`](docs/AUDIT-2.0.md))
+- Migration guide ([`docs/MIGRATIONS.md`](docs/MIGRATIONS.md))
+- README links (EN/FR) to the 2.0 roadmap and audit
+- **Opt-in authentication** (`AUTH_ENABLED`): setup, login/logout, httpOnly sessions, roles `admin`/`user`
+- Server-side API protection, login/setup rate limits, activity logs, admin-only backup download
+- Versioned SQLite migrations ledger (`schema_migrations`) + auth tables
+- Login / initial-setup screens
+- Expanded `.env.example` (auth, session, seed)
+- **Topbar language switcher** (FR / EN / ES / DE / IT / PT) with flags, keyboard a11y, instant UI update
+- Modular i18n dictionaries under `client/src/i18n/locales/{locale}/`
+- Locale-aware dates, numbers and currency via `Intl` (invoice currency amounts unchanged)
+- Guide: [`docs/I18N.md`](docs/I18N.md)
+
+### Changed
+- Default UI locale for new installs: **French** (`fr`); legacy `ja` maps to `en`
+- Japanese locale removed from the active set (replaced by Italian & Portuguese)
+- Demo seed runs only on **brand-new** DB files when `SEED_DEMO=true` (no reseed of empty existing DBs)
+- Security headers via `@fastify/helmet`; CORS credentials support for cookie sessions
+- Fastify multipart/static dependency upgrades (patched busboy)
+
+### Planned (see ROADMAP)
+- Users management UI in Settings; finer permissions (Alpha polish)
+- Line items & VAT fields, payments, expenses, templates (Beta 1)
+- UI/UX polish and enhanced live dashboard (Beta 2)
+- OpenAPI, tests, CI, optional Docker (RC)
 
 ## [1.2.0] - 2026-08-08
 

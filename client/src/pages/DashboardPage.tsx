@@ -24,7 +24,7 @@ import { useToast } from '../context/ToastContext';
 import { useAsyncData } from '../hooks/useAsyncData';
 import type { DashboardData, DashboardLayout, DashboardTask } from '../types';
 import { parseApiError } from '../utils/hooks';
-import { formatDate, useFormatCurrency } from '../utils/format';
+import { formatDate, useFormatCurrency, usePriorityLabel } from '../utils/format';
 import type { TranslationKey } from '../i18n/translations';
 
 const WIDGET_IDS = [
@@ -98,6 +98,7 @@ function priorityBadge(priority: string): string {
 
 function TasksTodayList({ tasks }: { tasks: DashboardTask[] }) {
   const { t } = useI18n();
+  const priorityLabel = usePriorityLabel();
   if (!tasks.length) {
     return <div className="empty-state">{t('dash.noTasks')}</div>;
   }
@@ -113,7 +114,7 @@ function TasksTodayList({ tasks }: { tasks: DashboardTask[] }) {
                 {task.due_date ? formatDate(task.due_date) : ''}
               </div>
             </div>
-            <span className={priorityBadge(task.priority)}>{task.priority}</span>
+            <span className={priorityBadge(task.priority)}>{priorityLabel(task.priority)}</span>
           </Link>
         </li>
       ))}

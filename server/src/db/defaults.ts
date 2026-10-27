@@ -32,7 +32,7 @@ const DEFAULTS: Record<string, string> = {
   smtp_pass: '',
   smtp_from: '',
   notify_email: 'false',
-  locale: 'en',
+  locale: 'fr',
   reminder_enabled: 'true',
   reminder_email: 'true',
   reminder_interval_hours: '24',

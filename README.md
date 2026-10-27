@@ -16,6 +16,7 @@
 <p align="center">
   <a href="https://github.com/nexyrosweb/nexboard/releases/tag/v1.2.0"><img src="https://img.shields.io/badge/release-v1.2.0-blue" alt="GitHub release v1.2.0"></a>
   <a href="https://www.npmjs.com/package/nexboard/v/1.2.0"><img src="https://img.shields.io/badge/npm-v1.2.0-cb3837" alt="npm version 1.2.0"></a>
+  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/roadmap-NexBoard%202.0-0e7490" alt="NexBoard 2.0 roadmap"></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/changelog-Keep%20a%20Changelog-blue.svg" alt="Changelog"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
   <a href="https://github.com/nexyrosweb/nexboard"><img src="https://img.shields.io/github/stars/nexyrosweb/nexboard?style=social" alt="GitHub stars"></a>
@@ -75,7 +76,7 @@ Full notes: [`CHANGELOG.md`](CHANGELOG.md) · [GitHub Release](https://github.co
 * 🏷️ Custom statuses per entity
 * ⏰ Overdue invoice reminders (in-app + optional email)
 * 🌙 Light and dark mode
-* 🎨 Logo, brand color and multi-language UI (EN / FR / ES / DE / JA)
+* 🎨 Logo, brand color and multi-language UI (FR / EN / ES / DE / IT / PT) with topbar language switcher
 * 🔔 Smart notification center
 * ✉️ SMTP configuration and test emails
 * ⚙️ Application settings
@@ -134,8 +135,11 @@ Full notes: [`CHANGELOG.md`](CHANGELOG.md) · [GitHub Release](https://github.co
 
 NexBoard follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
 
-- Current: **v1.2.0**
+- Current stable: **v1.2.0**
+- Next major (in progress): **NexBoard 2.0** — see [`ROADMAP.md`](ROADMAP.md)
 - Changelog: [`CHANGELOG.md`](CHANGELOG.md)
+- Technical audit (2.0 baseline): [`docs/AUDIT-2.0.md`](docs/AUDIT-2.0.md)
+- Internationalization: [`docs/I18N.md`](docs/I18N.md)
 - GitHub Releases: https://github.com/nexyrosweb/nexboard/releases
 
 ### Tech Stack
@@ -166,6 +170,9 @@ nexboard/
 │   │   ├── components/
 │   │   ├── context/
 │   │   ├── i18n/
+│   │   │   ├── config.ts          # locales FR/EN/ES/DE/IT/PT + BCP47
+│   │   │   ├── translations.ts    # merge + translate()
+│   │   │   └── locales/{fr,en,…}/ # modular dictionaries
 │   │   ├── layouts/
 │   │   ├── pages/
 │   │   ├── styles/
@@ -326,6 +333,10 @@ NexBoard is built around a few core principles:
 
 ### Roadmap
 
+**Full public roadmap:** [`ROADMAP.md`](ROADMAP.md) (Alpha → Beta → RC → Stable 2.0).
+
+Shipped in **v1.2.0**:
+
 * [x] Project architecture
 * [x] Dashboard interface
 * [x] Customer management
@@ -343,10 +354,13 @@ NexBoard is built around a few core principles:
 * [x] CSV import
 * [x] Smart notification center
 * [x] PDF generation (email attachments + browser print)
-* [ ] Authentication
-* [ ] User management
-* [ ] Roles and permissions
-* [ ] Advanced analytics
+
+**NexBoard 2.0** (in progress — details in [`ROADMAP.md`](ROADMAP.md)):
+
+* [ ] Authentication, sessions, roles & permissions (Alpha)
+* [ ] Commercial upgrades: payments, expenses, templates (Beta 1)
+* [ ] UI/UX polish & enhanced dashboard (Beta 2)
+* [ ] OpenAPI, tests, CI, optional Docker (RC)
 
 ### Contributing
 
@@ -409,7 +423,7 @@ Notes complètes : [`CHANGELOG.md`](CHANGELOG.md) · [Release GitHub](https://gi
 * 🏷️ Statuts personnalisables par entité
 * ⏰ Relances de factures en retard (in-app + e-mail optionnel)
 * 🌙 Mode clair et sombre
-* 🎨 Logo, couleur de marque et interface multilingue (EN / FR / ES / DE / JA)
+* 🎨 Logo, couleur de marque et interface multilingue (FR / EN / ES / DE / IT / PT) avec sélecteur dans la barre supérieure
 * 🔔 Centre de notifications intelligent
 * ✉️ Configuration SMTP et e-mails de test
 * ⚙️ Paramètres de l’application
@@ -468,8 +482,11 @@ Notes complètes : [`CHANGELOG.md`](CHANGELOG.md) · [Release GitHub](https://gi
 
 NexBoard suit le [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
 
-- Version actuelle : **v1.2.0**
+- Version stable actuelle : **v1.2.0**
+- Prochaine majeure (en cours) : **NexBoard 2.0** — voir [`ROADMAP.md`](ROADMAP.md)
 - Journal des versions : [`CHANGELOG.md`](CHANGELOG.md)
+- Audit technique (base 2.0) : [`docs/AUDIT-2.0.md`](docs/AUDIT-2.0.md)
+- Internationalisation : [`docs/I18N.md`](docs/I18N.md)
 - Releases GitHub : https://github.com/nexyrosweb/nexboard/releases
 
 ### Technologies
@@ -500,6 +517,9 @@ nexboard/
 │   │   ├── components/
 │   │   ├── context/
 │   │   ├── i18n/
+│   │   │   ├── config.ts          # locales FR/EN/ES/DE/IT/PT + BCP47
+│   │   │   ├── translations.ts    # merge + translate()
+│   │   │   └── locales/{fr,en,…}/ # modular dictionaries
 │   │   ├── layouts/
 │   │   ├── pages/
 │   │   ├── styles/
@@ -660,6 +680,10 @@ NexBoard repose sur plusieurs principes :
 
 ### Feuille de route
 
+**Feuille de route publique complète :** [`ROADMAP.md`](ROADMAP.md) (Alpha → Beta → RC → Stable 2.0).
+
+Livré en **v1.2.0** :
+
 * [x] Architecture du projet
 * [x] Interface du dashboard
 * [x] Gestion des clients
@@ -677,10 +701,13 @@ NexBoard repose sur plusieurs principes :
 * [x] Import CSV
 * [x] Centre de notifications intelligent
 * [x] Génération PDF (pièces jointes e-mail + impression navigateur)
-* [ ] Authentification
-* [ ] Gestion des utilisateurs
-* [ ] Rôles et permissions
-* [ ] Statistiques avancées
+
+**NexBoard 2.0** (en cours — détails dans [`ROADMAP.md`](ROADMAP.md)) :
+
+* [ ] Authentification, sessions, rôles et permissions (Alpha)
+* [ ] Améliorations commerciales : paiements, dépenses, modèles (Beta 1)
+* [ ] Polish UI/UX et tableau de bord enrichi (Beta 2)
+* [ ] OpenAPI, tests, CI, Docker optionnel (RC)
 
 ### Contribution
 

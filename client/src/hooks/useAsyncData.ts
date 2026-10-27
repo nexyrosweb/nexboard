@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { translate } from '../i18n/translations';
+import { getActiveLocale } from '../utils/formatLocale';
 
 interface UseAsyncState<T> {
   data: T | null;
@@ -24,7 +26,11 @@ export function useAsyncData<T>(loader: () => Promise<T>): UseAsyncState<T> {
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Erreur inattendue');
+          setError(
+            err instanceof Error
+              ? err.message
+              : translate(getActiveLocale(), 'errors.unexpected'),
+          );
         }
       })
       .finally(() => {

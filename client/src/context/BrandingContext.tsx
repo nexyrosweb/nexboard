@@ -9,9 +9,10 @@ import {
   type ReactNode,
 } from 'react';
 import { api } from '../api/client';
+import { useAuth } from './AuthContext';
 import { useI18n } from './I18nContext';
 import { useTheme, type ThemeMode } from './ThemeContext';
-import { isLocale, type Locale } from '../i18n/translations';
+import { LOCALE_STORAGE_KEY, normalizeLocale } from '../i18n/translations';
 import type { AppSettings } from '../types';
 
 interface BrandingContextValue {
@@ -58,6 +59,7 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const { setLocale } = useI18n();
   const { setTheme } = useTheme();
+  const { authEnabled, user, loading: authLoading } = useAuth();
   const hydratedLocale = useRef(false);
   const hydratedTheme = useRef(false);
 
@@ -76,15 +78,20 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
         hydratedTheme.current = true;
       }
 
-      const canApplyLocale =
-        typeof data.locale === 'string' &&
-        isLocale(data.locale) &&
-        (opts?.syncLocale === true || !hydratedLocale.current);
+      // Prefer an existing localStorage choice; only apply server locale when
+      // explicitly syncing (settings save) or when no local preference exists.
+      const localPref = normalizeLocale(localStorage.getItem(LOCALE_STORAGE_KEY));
+      const serverLocale = normalizeLocale(
+        typeof data.locale === 'string' ? data.locale : null,
+      );
 
-      if (canApplyLocale) {
-        setLocale(data.locale as Locale);
+      if (opts?.syncLocale === true && serverLocale) {
+        setLocale(serverLocale);
         hydratedLocale.current = true;
       } else if (!hydratedLocale.current) {
+        if (!localPref && serverLocale) {
+          setLocale(serverLocale);
+        }
         hydratedLocale.current = true;
       }
     } catch {
@@ -99,8 +106,14 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+    // When auth is on, wait until a session exists (or auth is off).
+    if (authEnabled && !user) {
+      setLoading(false);
+      return;
+    }
     void refresh();
-  }, [refresh]);
+  }, [refresh, authEnabled, user, authLoading]);
 
   const value = useMemo(
     () => ({ settings, loading, refresh, applyBrandColor, acknowledgeLocale }),

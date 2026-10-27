@@ -1,6 +1,7 @@
 import { Menu, Moon, Sun } from 'lucide-react';
 import { useI18n } from '../context/I18nContext';
 import { useTheme } from '../context/ThemeContext';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { NotificationBell } from './NotificationBell';
 
 interface TopbarProps {
@@ -26,7 +27,7 @@ export function Topbar({ title, onMenuClick }: TopbarProps) {
         <h1 className="topbar-title">{title}</h1>
       </div>
       <div className="topbar-actions">
-        <NotificationBell />
+        <LanguageSwitcher />
         <button
           type="button"
           className="btn btn-icon btn-ghost"
@@ -35,6 +36,7 @@ export function Topbar({ title, onMenuClick }: TopbarProps) {
         >
           {resolved === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
+        <NotificationBell />
       </div>
     </header>
   );
