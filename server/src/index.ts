@@ -4,10 +4,14 @@ import fs from 'node:fs';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
+import cookie from '@fastify/cookie';
+import rateLimit from '@fastify/rate-limit';
+import helmet from '@fastify/helmet';
 import { config } from './config.js';
 import { closeDatabase, initDatabase } from './db/index.js';
 import { uploadsDir } from './services/app.js';
 import { runSmartAlerts } from './services/alerts.js';
+import { registerAuthGate } from './plugins/authGate.js';
 import { dashboardRoutes } from './routes/dashboard.js';
 import { clientsRoutes } from './routes/clients.js';
 import { projectsRoutes } from './routes/projects.js';
@@ -19,16 +23,36 @@ import { toolsRoutes } from './routes/tools.js';
 import { tasksRoutes } from './routes/tasks.js';
 import { calendarRoutes } from './routes/calendar.js';
 import { importRoutes } from './routes/import.js';
+import { authRoutes } from './routes/auth.js';
+import { usersRoutes } from './routes/users.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function buildServer() {
   const app = Fastify({ logger: true });
 
-  await app.register(cors, { origin: true });
+  await app.register(helmet, {
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  });
+
+  await app.register(cors, {
+    origin: true,
+    credentials: true,
+  });
+
+  await app.register(cookie, {
+    secret: config.authSecret || 'nexboard-dev-cookie',
+  });
+
+  await app.register(rateLimit, {
+    global: false,
+  });
 
   initDatabase();
   fs.mkdirSync(uploadsDir, { recursive: true });
+
+  await registerAuthGate(app);
 
   await app.register(fastifyStatic, {
     root: uploadsDir,
@@ -36,6 +60,8 @@ export async function buildServer() {
     decorateReply: false,
   });
 
+  await app.register(authRoutes);
+  await app.register(usersRoutes);
   await app.register(dashboardRoutes);
   await app.register(clientsRoutes);
   await app.register(projectsRoutes);
@@ -86,8 +112,14 @@ export async function startServer() {
 
   await app.listen({ port: config.port, host: config.host });
   console.log(`[nexboard] prêt sur http://${config.host}:${config.port}`);
+  if (config.authEnabled) {
+    console.log('[nexboard] authentification activée (AUTH_ENABLED=true)');
+  } else {
+    console.log(
+      '[nexboard] authentification désactivée — activez AUTH_ENABLED=true pour les déploiements exposés',
+    );
+  }
 
-  // Smart alerts + overdue reminders: at startup, then hourly
   void runSmartAlerts().catch((err) => {
     console.warn('[nexboard] alertes init:', err);
   });

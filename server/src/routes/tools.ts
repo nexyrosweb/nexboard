@@ -6,6 +6,8 @@ import { config } from '../config.js';
 import { createNotification, serverRoot } from '../services/app.js';
 import { runSmartAlerts } from '../services/alerts.js';
 import { runOverdueReminders } from '../services/reminders.js';
+import { logActivity } from '../auth/activity.js';
+import { requireAdmin } from '../auth/permissions.js';
 
 function csvEscape(value: unknown): string {
   const str = value == null ? '' : String(value);
@@ -111,7 +113,10 @@ export async function toolsRoutes(app: FastifyInstance): Promise<void> {
     return csv;
   });
 
-  app.get('/api/backup', async (_request, reply) => {
+  app.get('/api/backup', async (request, reply) => {
+    if (config.authEnabled && !requireAdmin(request.authUser)) {
+      return reply.status(403).send({ error: 'Accès administrateur requis', code: 'FORBIDDEN' });
+    }
     try {
       const raw = config.databasePath;
       const dbPath = path.isAbsolute(raw) ? raw : path.resolve(serverRoot, raw);
@@ -126,6 +131,11 @@ export async function toolsRoutes(app: FastifyInstance): Promise<void> {
         return reply.status(404).send({ error: 'Base introuvable' });
       }
       const data = fs.readFileSync(dbPath);
+      logActivity({
+        userId: request.authUser?.id,
+        action: 'backup.download',
+        ip: request.ip,
+      });
       reply.header('Content-Type', 'application/octet-stream');
       reply.header(
         'Content-Disposition',

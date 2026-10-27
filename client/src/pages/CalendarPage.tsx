@@ -103,7 +103,7 @@ const emptyEventForm = (startsAt = ''): EventFormState => ({
 });
 
 export function CalendarPage() {
-  const { t, locale } = useI18n();
+  const { t, bcp47 } = useI18n();
   const navigate = useNavigate();
   const [mode, setMode] = useState<ViewMode>('month');
   const [anchor, setAnchor] = useState(() => new Date());
@@ -157,9 +157,9 @@ export function CalendarPage() {
   }, [data]);
 
   const weekdayLabels = useMemo(() => {
-    const fmt = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    const fmt = new Intl.DateTimeFormat(bcp47, { weekday: 'short' });
     return days.slice(0, 7).map((d) => fmt.format(d));
-  }, [days, locale]);
+  }, [days, bcp47]);
 
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
@@ -260,11 +260,11 @@ export function CalendarPage() {
 
   const rangeLabel = useMemo(() => {
     if (mode === 'month') {
-      return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(anchor);
+      return new Intl.DateTimeFormat(bcp47, { month: 'long', year: 'numeric' }).format(anchor);
     }
-    const fmtDay = new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'short' });
+    const fmtDay = new Intl.DateTimeFormat(bcp47, { day: '2-digit', month: 'short' });
     return `${fmtDay.format(start)} – ${fmtDay.format(end)}`;
-  }, [mode, anchor, start, end, locale]);
+  }, [mode, anchor, start, end, bcp47]);
 
   const hasItems = (data?.items?.length ?? 0) > 0;
   const todayKey = toISODate(new Date());

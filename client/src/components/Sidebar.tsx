@@ -6,11 +6,13 @@ import {
   FileText,
   FolderKanban,
   LayoutDashboard,
+  LogOut,
   Receipt,
   Settings,
   Users,
   X,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useBranding } from '../context/BrandingContext';
 import { useI18n } from '../context/I18nContext';
 import type { TranslationKey } from '../i18n/translations';
@@ -38,6 +40,7 @@ interface SidebarProps {
 export function Sidebar({ open, onClose }: SidebarProps) {
   const { settings } = useBranding();
   const { t } = useI18n();
+  const { authEnabled, user, logout } = useAuth();
   const name = String(settings.company_name || 'NexBoard');
   const tagline = String(settings.company_tagline || 'Business OS');
   const logo = settings.logo_url ? String(settings.logo_url) : '/logo.png';
@@ -111,6 +114,28 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         <div className="sidebar-footer">
+          {authEnabled && user ? (
+            <div className="sidebar-user">
+              <div className="sidebar-user-meta">
+                <span className="sidebar-user-name">{user.name}</span>
+                <span className="sidebar-user-role">{user.role}</span>
+              </div>
+              <button
+                type="button"
+                className="nav-link sidebar-logout"
+                onClick={() => {
+                  void logout();
+                  onClose();
+                }}
+                aria-label={t('auth.logout')}
+              >
+                <span className="nav-link-icon">
+                  <LogOut size={18} strokeWidth={2} />
+                </span>
+                <span className="nav-link-label">{t('auth.logout')}</span>
+              </button>
+            </div>
+          ) : null}
           <p className="sidebar-footer-text">{t('nav.footer')}</p>
         </div>
       </div>

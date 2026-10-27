@@ -7,6 +7,7 @@ import { createSchema } from './schema.js';
 import { seedDatabase } from './seed.js';
 import { ensureDefaultSettings } from './defaults.js';
 import { migrateSchema } from './migrate.js';
+import { runVersionedMigrations } from './migrationsRunner.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const serverRoot = path.resolve(__dirname, '../..');
@@ -37,15 +38,16 @@ export function initDatabase(): DatabaseSync {
 
   createSchema(db);
   migrateSchema(db);
+  runVersionedMigrations(db);
   ensureDefaultSettings(db);
 
-  const clientCount = db.prepare('SELECT COUNT(*) AS count FROM clients').get() as {
-    count: number;
-  };
-
-  if (isNew || clientCount.count === 0) {
+  // Only seed brand-new files when SEED_DEMO is enabled.
+  // Never re-seed an existing database that happens to have zero clients.
+  if (isNew && config.seedDemo) {
     seedDatabase(db);
     console.log('[db] Base initialisée avec données de démonstration');
+  } else if (isNew) {
+    console.log('[db] Base vide créée (SEED_DEMO=false)');
   } else {
     console.log('[db] Base existante chargée');
   }

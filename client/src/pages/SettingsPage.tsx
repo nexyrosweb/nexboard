@@ -17,7 +17,7 @@ import { useI18n } from '../context/I18nContext';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import { useAsyncData } from '../hooks/useAsyncData';
-import { isLocale, translate, type Locale, type TranslationKey } from '../i18n/translations';
+import { normalizeLocale, translate, type Locale, type TranslationKey } from '../i18n/translations';
 import type { AppSettings, ImportEntity, ImportPreviewResponse } from '../types';
 import { parseApiError } from '../utils/hooks';
 
@@ -186,8 +186,8 @@ export function SettingsPage() {
     setSaving(true);
     try {
       const localeToSave =
-        (typeof current.locale === 'string' && isLocale(current.locale)
-          ? current.locale
+        (typeof current.locale === 'string'
+          ? normalizeLocale(current.locale)
           : null) ?? locale;
 
       const saved = await saveSettings({
@@ -223,9 +223,10 @@ export function SettingsPage() {
       });
       setForm(saved);
       applyBrandColor(str(saved.brand_color, '#0891B2'));
-      if (typeof saved.locale === 'string' && isLocale(saved.locale)) {
-        setLocale(saved.locale);
-      }
+      const savedLocale = normalizeLocale(
+        typeof saved.locale === 'string' ? saved.locale : null,
+      );
+      if (savedLocale) setLocale(savedLocale);
       await refresh({ syncLocale: true });
       push(t('settings.saved'), 'success');
       reload();

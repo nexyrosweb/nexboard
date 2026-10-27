@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { translate } from '../i18n/translations';
+import { getActiveLocale } from './formatLocale';
 
 export function useDebouncedValue<T>(value: T, delay = 250): T {
   const [debounced, setDebounced] = useState(value);
@@ -15,6 +17,7 @@ export function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function parseApiError(err: unknown): string {
-  return err instanceof Error ? err.message : 'Une erreur est survenue';
+export function parseApiError(err: unknown, fallback?: string): string {
+  if (err instanceof Error) return err.message;
+  return fallback ?? translate(getActiveLocale(), 'errors.generic');
 }
